@@ -24,19 +24,6 @@
   }
 }
 
-.label {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--signal-text);
-  margin: 0 0 1rem;
-}
-
-.label::before {
-  content: "■ ";
-}
-
 .h2 {
   font-family: var(--font-serif);
   font-weight: 500;

@@ -15,7 +15,6 @@ export default function Home() {
 
       {/* ── Observation ─────────────────────────────── */}
       <section className={styles.hero} aria-labelledby="obs">
-        <p className={styles.label}>Observation 01</p>
         <h1 id="obs" className={styles.headline}>
           I notice what <span className={styles.strike}>others</span>{" "}
           <span className={styles.mark}>don’t.</span>
@@ -33,7 +32,6 @@ export default function Home() {
       {/* ── Hypothesis ──────────────────────────────── */}
       <section className={styles.hypothesis} aria-labelledby="hyp">
         <div className={styles.hypText}>
-          <p className={styles.label}>Hypothesis</p>
           <h2 id="hyp" className={styles.h2}>
             Not one skill. <em>The whole picture.</em>
           </h2>
@@ -78,7 +76,6 @@ export default function Home() {
       {/* ── Experiment ──────────────────────────────── */}
       <section className={styles.experiment} aria-labelledby="exp">
         <div className={styles.expHead}>
-          <p className={styles.label}>Experiment</p>
           <h2 id="exp" className={styles.h2}>
             Pull any two signals. See what holds them together.
           </h2>
@@ -95,7 +92,6 @@ export default function Home() {
       {/* ── Ask ─────────────────────────────────────── */}
       <section className={styles.ask} aria-labelledby="ask">
         <div className={styles.expHead}>
-          <p className={styles.label}>Ask the engine</p>
           <h2 id="ask" className={styles.h2}>
             Have a question? <em>Ask it of her own record.</em>
           </h2>
@@ -111,7 +107,6 @@ export default function Home() {
       {/* ── Field log ───────────────────────────────── */}
       <section className={styles.fieldlog} aria-labelledby="log">
         <div className={styles.expHead}>
-          <p className={styles.label}>Field log</p>
           <h2 id="log" className={styles.h2}>
             Not one path. <em>Several threads at once.</em>
           </h2>
@@ -126,7 +121,6 @@ export default function Home() {
 
       {/* ── Result ──────────────────────────────────── */}
       <section className={styles.result} aria-labelledby="res">
-        <p className={styles.label}>Result</p>
         <h2 id="res" className={styles.resultLine}>
           <span>I bring structure</span>
           <span className={styles.resultStrike}>without chaos.</span>
