@@ -13,6 +13,7 @@
 
 .plate {
   position: relative;
+  container-type: inline-size;
   margin: 0;
   aspect-ratio: 1 / 1;
   width: 100%;
@@ -127,6 +128,8 @@
 
 .node {
   position: absolute;
+  /* --x is the signal's position (0–100); --spread pulls nodes inward on small plates */
+  left: calc(50% + (var(--x) - 50) * var(--spread, 1%));
   transform: translate(-50%, -50%);
   display: grid;
   justify-items: start;
@@ -177,12 +180,73 @@
   font-size: 0.7rem;
 }
 
-@media (max-width: 520px) {
+/* Sized by the plate itself, so a narrow phone and a short landscape
+   plate get the same treatment. */
+@container (max-width: 520px) {
   .node {
     min-width: 0;
     padding: 0.4rem 0.5rem;
   }
   .nodeAffects {
+    display: none;
+  }
+}
+
+@container (max-width: 400px) {
+  .node {
+    --spread: 0.86%;
+    min-height: 44px;
+    align-content: center;
+    gap: 0;
+    padding: 0.25rem 0.4rem;
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .nodeOn {
+    box-shadow: 2px 2px 0 var(--signal);
+  }
+  .nodeIndex {
+    font-size: 0.58rem;
+  }
+  .nodeLabel {
+    font-size: 0.84rem;
+    white-space: nowrap;
+  }
+}
+
+/* Phone landscape: keep the plate within the screen height and the
+   reading beside it, instead of a plate taller than the screen. */
+@media (orientation: landscape) and (max-height: 520px) and (min-width: 600px) {
+  .wrap {
+    grid-template-columns: minmax(0, min(78svh, 46%)) minmax(0, 1fr);
+  }
+  .readout {
+    margin-top: 0;
+  }
+}
+
+/* "Reading below" cue: only where the reading sits under the plate. */
+.jump {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .jump {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 0.25rem;
+    padding: 0;
+    background: none;
+    border: none;
+    font-family: var(--font-hand);
+    font-size: 1.1rem;
+    color: var(--signal-text);
+    cursor: pointer;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 520px) and (min-width: 600px) {
+  .jump {
     display: none;
   }
 }
@@ -205,6 +269,7 @@
 
 .readout {
   position: relative;
+  scroll-margin-top: 1rem;
   border-top: 3px solid var(--ink);
   padding-top: 1rem;
   min-height: 20rem;
@@ -372,6 +437,14 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--signal-text);
+}
+
+@media (pointer: coarse) {
+  .reset {
+    display: inline-flex;
+    align-items: flex-end;
+    min-height: 44px;
+  }
 }
 
 .reset:disabled {

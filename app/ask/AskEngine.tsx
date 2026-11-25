@@ -152,7 +152,7 @@ export default function AskEngine() {
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               maxLength={MAX}
-              placeholder="e.g. How does she connect brand and people?"
+              placeholder="e.g. How does she lead?"
               autoComplete="off"
               disabled={disabled}
             />

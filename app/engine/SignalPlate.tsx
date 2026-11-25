@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState, type CSSProperties } from "react";
 import styles from "./plate.module.css";
 import {
   SIGNALS,
@@ -88,6 +88,14 @@ export default function SignalPlate() {
     setCoreOpen(false);
   };
 
+  const readoutRef = useRef<HTMLElement>(null);
+  // Single-column layouts put the reading below the plate: offer a jump to it.
+  // Plain scroll (no focus move), instant when reduced motion is preferred.
+  const showReading = () => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    readoutRef.current?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  };
+
   const [a, b] = picked;
   const activeKey = a && b ? pairKey(a, b) : null;
   const connection = a && b ? lookup(a, b) : undefined;
@@ -155,7 +163,7 @@ export default function SignalPlate() {
                 key={s.id}
                 type="button"
                 className={`${styles.node} ${on ? styles.nodeOn : ""}`}
-                style={{ left: `${s.pos.x}%`, top: `${s.pos.y}%` }}
+                style={{ "--x": s.pos.x, top: `${s.pos.y}%` } as CSSProperties}
                 aria-pressed={on}
                 onClick={() => toggle(s.id)}
               >
@@ -168,6 +176,23 @@ export default function SignalPlate() {
             );
           })}
         </figure>
+
+        {(picked.length > 0 || coreOpen) && (
+          // Visual cue only: the reading itself is already announced by the
+          // live region, so this stays out of the tab order and the a11y tree.
+          <button
+            type="button"
+            className={styles.jump}
+            onClick={showReading}
+            // never take focus: it is hidden from assistive tech
+            onPointerDown={(e) => e.preventDefault()}
+            onMouseDown={(e) => e.preventDefault()}
+            tabIndex={-1}
+            aria-hidden="true"
+          >
+            {picked.length === 2 ? "Read the line below" : "Reading below"} ↓
+          </button>
+        )}
 
         <div className={styles.key}>
           <p className={styles.caption}>
@@ -203,7 +228,7 @@ export default function SignalPlate() {
         </div>
       </div>
 
-      <aside className={styles.readout} aria-live="polite">
+      <aside ref={readoutRef} className={styles.readout} aria-live="polite">
         {coreOpen && (
           <div>
             <p className={styles.kicker}>Core — clarity</p>

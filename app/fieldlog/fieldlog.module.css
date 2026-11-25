@@ -241,8 +241,23 @@
 }
 
 @media (max-width: 520px) {
+  /* Wrap upward from the plate's top edge instead of running off-screen. */
+  .plate {
+    margin-top: 3.2rem;
+  }
   .margin {
+    left: 0.5rem;
+    top: auto;
+    bottom: 100%;
+    margin-bottom: 0.3rem;
     font-size: 0.95rem;
+    line-height: 1.15;
+    text-align: right;
+    white-space: normal;
+  }
+  /* The last year tick sits too close to "Present" at this width. */
+  .axis span:nth-last-child(2) {
+    display: none;
   }
 }
 
@@ -522,5 +537,11 @@
   .bar,
   .dot {
     transition: none;
+  }
+}
+
+@media (pointer: coarse) {
+  .narration {
+    min-height: 44px;
   }
 }

@@ -289,6 +289,25 @@
   text-decoration: none;
 }
 
+/* Touch: a 44px hit area around the marker without changing how it looks. */
+@media (pointer: coarse) {
+  .cite a {
+    position: relative;
+  }
+  .cite a::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+  .example {
+    min-height: 44px;
+  }
+}
+
 .cite a:hover {
   text-decoration: underline;
 }
