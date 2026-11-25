@@ -8,8 +8,10 @@
  */
 
 import { connection } from "next/server";
-import { answerQuestion, cleanQuestion, MAX_QUESTION } from "../../ask/answer";
-import { geminiConfigured, geminiProvider, ProviderError } from "../../ask/gemini";
+import { AnswerFailure, answerQuestion, cleanQuestion, MAX_QUESTION } from "../../ask/answer";
+import { geminiConfigured, geminiProvider } from "../../ask/gemini";
+import { groqConfigured, groqProvider } from "../../ask/groq";
+import { describeFailure } from "../../ask/providerError";
 import { clientId, createRateLimiter } from "../../ask/rateLimit";
 
 const json = (body: unknown, status = 200) =>
@@ -63,16 +65,33 @@ export async function POST(request: Request) {
     );
   }
 
+  // Groq is a fallback only when its key is configured on the server.
+  const fallback = groqConfigured() ? groqProvider : undefined;
+  let primaryFailed: unknown;
+  const primary: typeof geminiProvider = async (prompt) => {
+    try {
+      return await geminiProvider(prompt);
+    } catch (e) {
+      primaryFailed = e;
+      throw e;
+    }
+  };
+
   try {
-    return json(await answerQuestion(question, geminiProvider));
+    const result = await answerQuestion(question, primary, fallback);
+    if (primaryFailed) {
+      console.warn(`[ask] provider failure ${describeFailure(primaryFailed)}; answered by fallback=groq`);
+    }
+    return json(result);
   } catch (e) {
-    // One safe line for diagnosis: category, HTTP status, attempts. Never the
-    // key, prompt, visitor question or provider response.
-    const info =
-      e instanceof ProviderError
-        ? `category=${e.category} status=${e.status ?? "-"} attempts=${e.attempts}`
-        : "category=unexpected";
-    console.warn(`[ask] provider failure ${info}`);
+    // Safe lines only: categories, HTTP status, attempts. Never a key, prompt,
+    // visitor question or provider response.
+    const primaryInfo = describeFailure(e instanceof AnswerFailure ? e.primary : e);
+    const fallbackInfo =
+      e instanceof AnswerFailure && e.fallback !== undefined
+        ? `; fallback=groq ${e.fallback === "invalid" ? "category=invalid-answer" : describeFailure(e.fallback)}`
+        : "";
+    console.warn(`[ask] provider failure ${primaryInfo}${fallbackInfo}`);
     // Never pass provider details, prompts or stack traces to the browser.
     return json(
       { state: "error", message: "The Clarity Engine couldn’t answer just now. Please try again shortly." },

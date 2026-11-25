@@ -10,6 +10,7 @@
 
 import "server-only";
 import type { ModelReply, Provider } from "./answer";
+import { ProviderError } from "./providerError";
 
 export const DEFAULT_MODEL = "gemini-3.5-flash-lite";
 export const GOOGLE_HOST = "generativelanguage.googleapis.com";
@@ -26,28 +27,7 @@ const TRANSIENT = new Set([429, 503]);
 // Room for a fully cited list (one sentence + ids per item, up to 12).
 const MAX_OUTPUT_TOKENS = 1024;
 
-/**
- * Safe failure categories. Messages never contain the key, prompt,
- * question or provider response body.
- */
-export type FailureCategory =
-  | "config" // no key / disallowed host
-  | "transient" // 429 or 503, after any allowed retry
-  | "http" // other non-OK status (e.g. 400/403) — not retried
-  | "timeout"
-  | "network"
-  | "malformed"; // finishReason not STOP, or reply not the expected JSON
-
-export class ProviderError extends Error {
-  constructor(
-    readonly category: FailureCategory,
-    readonly status?: number,
-    readonly attempts = 1,
-  ) {
-    super(`gemini ${category}${status ? ` ${status}` : ""} after ${attempts} attempt(s)`);
-  }
-}
-
+export { ProviderError, type FailureCategory } from "./providerError";
 /** Retry-After as milliseconds: seconds or an HTTP date. */
 export function retryAfterMs(header: string | null, now = Date.now()): number | null {
   if (!header) return null;

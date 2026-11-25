@@ -118,7 +118,26 @@ function sourceBlock(docs: SourceDoc[]) {
 
 // ── pipeline ──────────────────────────────────────────────────────
 
-export async function answerQuestion(question: string, provider: Provider): Promise<AskResult> {
+/**
+ * Thrown when no provider produced a usable reply. Carries only safe failure
+ * descriptions (categories/status), never prompts, questions or responses.
+ */
+export class AnswerFailure extends Error {
+  constructor(
+    readonly primary: unknown,
+    /** fallback's error, or "invalid" when its reply failed validation */
+    readonly fallback?: unknown,
+  ) {
+    super("no usable provider reply");
+  }
+}
+
+export async function answerQuestion(
+  question: string,
+  provider: Provider,
+  /** Tried once, only if `provider` throws (e.g. Gemini down). Same prompt, same validation. */
+  fallback?: Provider,
+): Promise<AskResult> {
   const docs = retrieve(question);
   // Nothing relevant in the references: answer honestly without a model call.
   if (!docs.length) return unsupported();
@@ -131,11 +150,35 @@ export async function answerQuestion(question: string, provider: Provider): Prom
     ? `\n\nTASK: This question asks for a list. Each source above is one ${KIND[lane]} listed in her profile, so the sources answer it. Write one short sentence per source, giving its title, issuer or organisation, and date exactly as written, and cite only that source's id.`
     : "";
 
-  const reply = await provider({
+  const prompt = {
     system: SYSTEM,
     user: `SOURCES (one JSON object per line):\n${sourceBlock(docs)}\n\nQUESTION: ${question}${task}`,
-  });
+  };
 
+  let reply: ModelReply;
+  try {
+    reply = await provider(prompt);
+  } catch (primaryError) {
+    // Only a provider failure reaches the fallback — never a validation result.
+    if (!fallback) throw new AnswerFailure(primaryError);
+    try {
+      reply = await fallback(prompt);
+    } catch (fallbackError) {
+      throw new AnswerFailure(primaryError, fallbackError);
+    }
+    // The fallback gets no shortcut: same checks. If its reply isn't a valid,
+    // fully cited answer, the visitor sees the generic error rather than an
+    // answer (or a "not covered") resting on the backup alone.
+    const checked = validateReply(reply, docs, isList);
+    if (checked.state !== "answer") throw new AnswerFailure(primaryError, "invalid");
+    return checked;
+  }
+
+  return validateReply(reply, docs, isList);
+}
+
+/** The grounding rules, applied identically to every provider's reply. */
+function validateReply(reply: ModelReply, docs: SourceDoc[], isList: boolean): AskResult {
   if (!reply || reply.supported !== true || !Array.isArray(reply.sentences)) return unsupported();
   const sentences = reply.sentences.slice(0, isList ? Math.min(docs.length, MAX_LIST_SENTENCES) : MAX_SENTENCES);
   if (!sentences.length) return unsupported();
