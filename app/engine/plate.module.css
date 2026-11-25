@@ -255,6 +255,12 @@
   min-width: 0;
 }
 
+/* the handwritten line that introduces the plate */
+.note.plateIntro {
+  margin: 0 0 0.6rem;
+  line-height: 1.3;
+}
+
 .key {
   margin-top: 0.75rem;
 }

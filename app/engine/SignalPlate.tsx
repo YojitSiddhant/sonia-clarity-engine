@@ -103,6 +103,9 @@ export default function SignalPlate() {
   return (
     <div className={styles.wrap}>
       <div className={styles.figureCol}>
+        <p className={`${styles.note} ${styles.plateIntro}`}>
+          Four ideas from her About. Two more surfaced in her experience.
+        </p>
         <figure
           className={styles.plate}
           aria-label="Diagram: Brand, Messaging, People and Operations, connected through clarity"
