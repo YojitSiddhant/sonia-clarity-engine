@@ -24,9 +24,6 @@ export default function Home() {
           <br />
           and I help make sense of it.
         </p>
-        <p className={`${styles.annot} ${styles.annotHero}`}>
-          ↖ her words, the opening line of her own About
-        </p>
       </section>
 
       {/* ── Hypothesis ──────────────────────────────── */}
@@ -45,10 +42,6 @@ export default function Home() {
             she says her role has been the same everywhere:{" "}
             <strong>“bringing clarity, connecting the dots, and making the work
             simpler, purposeful, and aligned.”</strong>
-          </p>
-          <p className={styles.annot}>
-            So instead of listing what she has done, this page tests how she
-            connects things. →
           </p>
         </div>
 
