@@ -1,26 +1,46 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* editorial laboratory: warm paper, ink, one signal colour */
+  --paper: #f4ede0;
+  --paper-deep: #ece2cf;
+  --ink: #1d1a16;
+  --ink-soft: #5d554a;
+  --rule: #b9ab92;
+  --signal: #c44826;
+
+  --background: var(--paper);
+  --foreground: var(--ink);
+
+  /* local/system stacks only: builds and renders offline */
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --font-text: "Charter", "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-hand: "Bradley Hand", "Segoe Print", "Comic Neue", cursive;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-text);
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
+  /* faint paper grain + ruled-notebook lines */
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 31px,
+      rgba(29, 26, 22, 0.035) 31px,
+      rgba(29, 26, 22, 0.035) 32px
+    );
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-text);
+}
+
+::selection {
+  background: var(--signal);
+  color: var(--paper);
 }
