@@ -62,7 +62,7 @@ export const ENTRIES: Entry[] = [
   {
     id: "w-tadkaa", lane: "work", title: "Advisory Board Member", org: "Brand Tadkaa", dates: "May 2014 – Dec 2019",
     start: { y: 2014, m: 5 }, end: { y: 2019, m: 12 },
-    note: "Dates as listed. The role’s description mentions April 2018.",
+    note: "The role’s description mentions April 2018.",
   },
   {
     id: "w-founder", lane: "work", title: "Founder | CEO", org: "Self-employed", dates: "Jan 2013 – Apr 2014",
@@ -115,7 +115,7 @@ export const ENTRIES: Entry[] = [
   { id: "v-roundglass", lane: "volunteering", title: "Volunteer", org: "RoundGlass Foundation", dates: "Jun 2018 – Present", start: { y: 2018, m: 6 }, end: "present" },
 ];
 
-/** Axis: 2002 → the "Present (as listed)" stop, which is not given a year. */
+/** Axis: 2002 → the "Present" stop, which is not given a year. */
 export const FIRST_YEAR = 2002;
 export const LAST_DATED_YEAR = 2025; // latest dated start (May 2025)
 export const PRESENT_STOP = LAST_DATED_YEAR + 1; // slider value meaning "Present"

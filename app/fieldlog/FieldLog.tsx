@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./fieldlog.module.css";
 import {
   ENTRIES,
@@ -58,7 +58,10 @@ const isActive = (e: Entry, year: number) => {
   return e.start.y <= year && year <= endY;
 };
 
-const yearLabel = (y: number) => (y === PRESENT_STOP ? "Present (as listed)" : String(y));
+const yearLabel = (y: number) => (y === PRESENT_STOP ? "Present" : String(y));
+
+// One year every 1.6 s: slow enough to read the panel as it changes.
+const PLAY_STEP_MS = 1600;
 
 const NOUN: Record<Lane, [string, string]> = {
   work: ["role", "roles"],
@@ -80,7 +83,48 @@ const PRESENT_WORK = ENTRIES.filter((e) => e.lane === "work" && e.end === "prese
 
 export default function FieldLog() {
   const [year, setYear] = useState(PRESENT_STOP);
-  const set = (y: number) => setYear(Math.min(PRESENT_STOP, Math.max(FIRST_YEAR, y)));
+  const [playing, setPlaying] = useState(false);
+  // Announced once per playback event, instead of every year while playing.
+  const [status, setStatus] = useState("");
+  // "Replay" only after a playback has actually reached Present.
+  const [finished, setFinished] = useState(false);
+
+  // Manual navigation always wins: it pauses playback first.
+  const set = (y: number) => {
+    if (playing) {
+      setPlaying(false);
+      setStatus(`Playback paused at ${yearLabel(y)}.`);
+    }
+    setFinished(false);
+    setYear(Math.min(PRESENT_STOP, Math.max(FIRST_YEAR, y)));
+  };
+
+  const togglePlay = () => {
+    if (playing) {
+      setPlaying(false);
+      setStatus(`Playback paused at ${yearLabel(year)}.`);
+      return;
+    }
+    const from = year === PRESENT_STOP ? FIRST_YEAR : year; // replay from the start
+    setYear(from);
+    setFinished(false);
+    setPlaying(true);
+    setStatus(`Playback started at ${yearLabel(from)}.`);
+  };
+
+  useEffect(() => {
+    if (!playing) return;
+    const id = setTimeout(() => {
+      const next = year + 1;
+      setYear(next);
+      if (next >= PRESENT_STOP) {
+        setPlaying(false);
+        setFinished(true);
+        setStatus(`Playback finished at Present. ${summary(PRESENT_STOP)}.`);
+      }
+    }, PLAY_STEP_MS);
+    return () => clearTimeout(id);
+  }, [playing, year]);
   const active = ENTRIES.filter((e) => isActive(e, year));
   const workCount = active.filter((e) => e.lane === "work").length;
 
@@ -89,7 +133,7 @@ export default function FieldLog() {
       <div className={styles.plateCol}>
         <figure
           className={styles.plate}
-          aria-label={`Timeline from ${FIRST_YEAR} to Present (as listed), in four lanes: work, education, recognition and volunteering. Use the year slider below to read each year.`}
+          aria-label={`Timeline from ${FIRST_YEAR} to Present, in four lanes: work, education, recognition and volunteering. Use the year slider below to read each year.`}
         >
           {/* year grid + needle */}
           <div className={styles.grid} aria-hidden="true">
@@ -156,6 +200,24 @@ export default function FieldLog() {
         <div className={styles.controls}>
           <button
             type="button"
+            className={`${styles.play} ${playing ? styles.playOn : ""}`}
+            onClick={togglePlay}
+            aria-pressed={playing}
+            aria-label={
+              playing
+                ? "Pause timeline"
+                : year === PRESENT_STOP
+                  ? `${finished ? "Replay" : "Play"} timeline from ${FIRST_YEAR}`
+                  : "Play timeline"
+            }
+          >
+            <span aria-hidden="true">{playing ? "❚❚" : finished ? "↺" : "▶"}</span>
+            <span className={styles.playText} aria-hidden="true">
+              {playing ? "Pause" : finished ? "Replay" : "Play"}
+            </span>
+          </button>
+          <button
+            type="button"
             className={styles.step}
             onClick={() => set(year - 1)}
             disabled={year === FIRST_YEAR}
@@ -189,7 +251,7 @@ export default function FieldLog() {
 
         <p className={styles.caption}>
           Fig. 3 — The Field Log. Move the needle to a year to read what her
-          profile lists for it. Stacked rows show overlap only; their order
+          profile lists for it, or press Play to step through the years. Stacked rows show overlap only; their order
           means nothing about rank or sequence.
         </p>
         <ul className={styles.legend} aria-label="Legend">
@@ -203,12 +265,18 @@ export default function FieldLog() {
           </li>
           <li>
             <span className={`${styles.legendBar} ${styles.legendPresent}`} aria-hidden="true" />{" "}
-            still listed as “Present”; no end date is claimed
+            listed as “Present”; no end date is claimed
           </li>
         </ul>
       </div>
 
-      <aside className={styles.readout} aria-live="polite">
+      {/* Playback start/pause/finish is announced here, once per event. */}
+      <p className={styles.srOnly} role="status">
+        {status}
+      </p>
+
+      {/* Manual year changes are announced; silent while playback runs. */}
+      <aside className={styles.readout} aria-live={playing ? "off" : "polite"}>
         <p className={styles.kicker}>Reading — {yearLabel(year)}</p>
         <p className={styles.readTitle}>
           {year === PRESENT_STOP ? "Still listed as “Present”: " : `In ${year}: `}
@@ -228,7 +296,7 @@ export default function FieldLog() {
                     <span className={styles.itemTitle}>{e.title}</span>
                     <span className={styles.itemWhere}>
                       {SECTION[e.lane]} · {e.org} ·{" "}
-                      {e.dates.replace("Present", "Present (as listed)")}
+                      {e.dates}
                     </span>
                     {e.note && <span className={styles.itemNote}>{e.note}</span>}
                   </li>

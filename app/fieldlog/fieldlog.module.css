@@ -244,7 +244,7 @@
 /* controls */
 .controls {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto auto 1fr auto;
   align-items: center;
   gap: 0.75rem;
   margin-top: 0.9rem;
@@ -278,6 +278,46 @@
   font-size: 1rem;
   cursor: pointer;
   box-shadow: 2px 2px 0 var(--ink);
+}
+
+.play {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: 2.75rem;
+  min-width: 2.75rem;
+  justify-content: center;
+  padding: 0 0.9rem;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--signal);
+}
+
+.playOn {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.play:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 3px;
+}
+
+@media (max-width: 420px) {
+  .controls {
+    gap: 0.5rem;
+  }
+  .play {
+    padding: 0 0.7rem;
+  }
+  .playText {
+    display: none;
+  }
 }
 
 .step:disabled {
