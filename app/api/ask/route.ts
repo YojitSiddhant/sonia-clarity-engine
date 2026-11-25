@@ -36,7 +36,7 @@ export async function GET() {
 export async function POST(request: Request) {
   if (!geminiConfigured()) {
     return json(
-      { state: "setup", message: "Ask the Clarity Engine isn’t set up on this deployment yet." },
+      { state: "setup", message: "Questions aren’t available right now." },
       503,
     );
   }
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     if (raw.length > 2_000) throw new Error("too large");
     body = JSON.parse(raw);
   } catch {
-    return json({ state: "invalid", message: "Please send a short question." }, 400);
+    return json({ state: "invalid", message: "Please type a short question." }, 400);
   }
 
   const question = cleanQuestion((body as { question?: unknown })?.question);

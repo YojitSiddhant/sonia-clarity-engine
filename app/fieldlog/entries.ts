@@ -36,9 +36,9 @@ export const SECTION: Record<Lane, string> = {
 };
 
 export const LANE_LABEL: Record<Lane, string> = {
-  work: "Work",
+  work: "Experience",
   education: "Education",
-  recognition: "Recognition",
+  recognition: "Awards",
   volunteering: "Volunteering",
 };
 

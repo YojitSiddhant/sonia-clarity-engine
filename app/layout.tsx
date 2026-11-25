@@ -5,9 +5,9 @@ import "./globals.css";
 // so production builds never need network access.
 
 export const metadata: Metadata = {
-  title: "The Clarity Engine",
+  title: "Soniaa — The Clarity Engine",
   description:
-    "An editorial notebook on how Soniaa connects brand, messaging, operations and people.",
+    "A closer look at Soniaa’s experience, thinking and approach to business.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

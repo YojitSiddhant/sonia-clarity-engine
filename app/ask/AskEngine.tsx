@@ -9,10 +9,10 @@ const MAX = 300;
 
 // Each example maps to entries that exist in the curated data.
 const EXAMPLES = [
-  "How does Soniaa connect marketing and operations?",
-  "What experience does she have building teams?",
-  "What does her timeline show around 2020?",
-  "What awards are listed in her profile?",
+  "How do you integrate marketing strategy with business operations?",
+  "What is your experience in building and leading teams?",
+  "How has your career evolved over the years?",
+  "What recognitions and awards have you received?",
 ];
 
 type View =
@@ -155,7 +155,7 @@ export default function AskEngine() {
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               maxLength={MAX}
-              placeholder="e.g. How does she lead?"
+              placeholder="e.g. How do you lead teams?"
               autoComplete="off"
               disabled={disabled}
             />
@@ -184,34 +184,34 @@ export default function AskEngine() {
         </div>
 
         <p id="ask-note" className={styles.note}>
-          Answers use Soniaa’s profile references. Your questions aren’t stored.
+          All answers come from my professional profile. Questions are not
+          stored.
         </p>
       </div>
 
       <section className={styles.readout} aria-live="polite" aria-busy={loading} aria-label="Answer">
         {disabled && (
           <div>
-            <p className={styles.kicker}>Reading — not set up</p>
-            <p className={styles.title}>Ask the Clarity Engine isn’t switched on here yet.</p>
+            <p className={styles.kicker}>Questions unavailable</p>
+            <p className={styles.title}>Questions aren’t available right now.</p>
             <p className={styles.small}>
-              It needs a server-side Gemini key on the deployment. Everything else on this page works
-              without it.
+              Everything else on this page still works.
             </p>
           </div>
         )}
 
         {!disabled && view.kind === "idle" && (
           <div>
-            <p className={styles.kicker}>Reading — waiting</p>
-            <p className={styles.title}>Ask about how she works. The answer will show where it came from.</p>
+            <p className={styles.kicker}>Your answer</p>
+            <p className={styles.title}>Ask about how I work. Each answer shows where it came from.</p>
           </div>
         )}
 
         {view.kind === "loading" && (
           <div>
-            <p className={styles.kicker}>Reading — “{view.question}”</p>
+            <p className={styles.kicker}>You asked — “{view.question}”</p>
             <p className={styles.loading}>
-              <span className={styles.pulse} aria-hidden="true" /> Checking her profile references…
+              <span className={styles.pulse} aria-hidden="true" /> Checking my profile…
             </p>
           </div>
         )}
@@ -219,7 +219,7 @@ export default function AskEngine() {
         {view.kind === "answer" && (
           <div>
             <p className={styles.kicker}>
-              Reading — “{view.question}”
+              You asked — “{view.question}”
               {view.provider && (
                 <span className={styles.provider}>
                   <span aria-hidden="true">{PROVIDER_LABEL[view.provider].visible}</span>
@@ -230,7 +230,7 @@ export default function AskEngine() {
             {/* parts of the question her references don't cover: said plainly, never guessed */}
             {view.gaps.length > 0 && (
               <p className={styles.gap}>
-                Not in her profile references: {view.gaps.map((g) => `“${g}”`).join(", ")}.
+                Not in my profile: {view.gaps.map((g) => `“${g}”`).join(", ")}.
               </p>
             )}
             {/* each sentence keeps the numbers of the sources it relies on */}
@@ -269,7 +269,7 @@ export default function AskEngine() {
                 </p>
               );
             })()}
-            <p className={styles.sourcesLabel}>Sources from her profile</p>
+            <p className={styles.sourcesLabel}>Sources from my profile</p>
             <ol className={`${styles.sources} ${view.citations.length >= 5 ? styles.sourcesGrid : ""}`}>
               {view.citations.map((c, i) => (
                 <li key={c.id} id={`ask-src-${i + 1}`}>
@@ -280,7 +280,7 @@ export default function AskEngine() {
                     <span className={`${styles.tag} ${styles[`tag_${c.evidence}`]}`}>{sourceLabel(c)}</span>
                   </span>
                   <span className={styles.srcText}>{c.evidence === "record" ? c.text : `“${c.text}”`}</span>
-                  {c.reading && <span className={styles.srcReading}>Our reading: {c.reading}</span>}
+                  {c.reading && <span className={styles.srcReading}>Editorial reading: {c.reading}</span>}
                   <span className={styles.srcWhere}>
                     {c.section}
                     {c.where ? ` · ${c.where}` : ""}
@@ -293,15 +293,15 @@ export default function AskEngine() {
 
         {view.kind === "unsupported" && (
           <div>
-            <p className={styles.kicker}>Reading — “{view.question}”</p>
-            <p className={styles.title}>Not in the references.</p>
+            <p className={styles.kicker}>You asked — “{view.question}”</p>
+            <p className={styles.title}>Not in my profile.</p>
             <p className={styles.small}>{view.answer}</p>
           </div>
         )}
 
         {view.kind === "notice" && !disabled && (
           <div>
-            <p className={styles.kicker}>Reading — {view.question ? `“${view.question}”` : "check the question"}</p>
+            <p className={styles.kicker}>{view.question ? `You asked — “${view.question}”` : "Check your question"}</p>
             <p className={styles.small}>{view.message}</p>
           </div>
         )}

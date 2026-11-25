@@ -53,7 +53,7 @@ export type AskResult =
   | { state: "unsupported"; answer: string };
 
 export const UNSUPPORTED =
-  "Soniaa’s supplied profile references don’t cover that, so the Clarity Engine won’t guess.";
+  "My profile doesn’t cover that, so the Clarity Engine won’t guess.";
 
 const unsupported = (): AskResult => ({ state: "unsupported", answer: UNSUPPORTED });
 

@@ -9,20 +9,21 @@ export default function Home() {
     <main className={styles.sheet}>
       <header className={styles.masthead}>
         <span>The Clarity Engine</span>
-        <span className={styles.mastMid}>A closer look at Soniaa’s work, ideas, and experience</span>
-        <span>Soniaa · Marketing &amp; Operations</span>
+        <span className={styles.mastMid}>A closer look at my experience, thinking and approach to business</span>
+        <span>Soniaa · Marketing &amp; Operations Leader</span>
       </header>
 
       {/* ── Observation ─────────────────────────────── */}
       <section className={styles.hero} aria-labelledby="obs">
         <h1 id="obs" className={styles.headline}>
-          I notice what <span className={styles.strike}>others</span>{" "}
-          <span className={styles.mark}>don’t.</span>
+          I see the <span className={styles.strike}>bigger</span>{" "}
+          <span className={styles.mark}>picture.</span>
         </h1>
         <p className={styles.sub}>
-          The gaps, the confusion, the unspoken story,
+          I bring the pieces together.
           <br />
-          and I help make sense of it.
+          This is a closer look at how I think, work and connect different
+          parts of a business.
         </p>
       </section>
 
@@ -30,7 +31,8 @@ export default function Home() {
       <section className={styles.hypothesis} aria-labelledby="hyp">
         <div className={styles.hypText}>
           <h2 id="hyp" className={styles.h2}>
-            Not one skill. <em>The whole picture.</em>
+            More than individual capabilities.{" "}
+            <em>A connected business perspective.</em>
           </h2>
           <blockquote className={styles.verbatim}>
             “my strength isn’t just one skill or expertise but it lies in
@@ -38,16 +40,17 @@ export default function Home() {
             <cite>Soniaa, About</cite>
           </blockquote>
           <p className={styles.body}>
-            Across global companies, early-stage teams and growing startups,
-            she says her role has been the same everywhere:{" "}
+            I believe business challenges rarely exist in isolation. Across
+            global companies, early-stage teams and growing startups, my role
+            has been the same everywhere:{" "}
             <strong>“bringing clarity, connecting the dots, and making the work
             simpler, purposeful, and aligned.”</strong>
           </p>
         </div>
 
-        <figure className={styles.ledger} aria-label="Four signals and what each affects">
+        <figure className={styles.ledger} aria-label="Four business areas and what each affects">
           <figcaption className={styles.figcap}>
-            Fig. 1 — Four readings, as she states them
+            Fig. 1 — Four connections, in my own words
           </figcaption>
           <ol>
             {SIGNALS.filter((s) => s.affects).map((s) => (
@@ -60,8 +63,8 @@ export default function Home() {
             ))}
           </ol>
           <p className={styles.ledgerNote}>
-            “how people affect <u>everything</u>” — the only reading with no
-            boundary.
+            “how people affect <u>everything</u>” — the one connection with no
+            limit.
           </p>
         </figure>
       </section>
@@ -70,13 +73,13 @@ export default function Home() {
       <section className={styles.experiment} aria-labelledby="exp">
         <div className={styles.expHead}>
           <h2 id="exp" className={styles.h2}>
-            Pull any two signals. See what holds them together.
+            Explore the connections.
           </h2>
           <p className={styles.body}>
-            Every pair responds, but not every pair is proven. Each line is
-            drawn by how strongly her own words support it: solid where they
-            name both signals, dashed where the link is our reading, dotted
-            where her profile doesn’t speak to it.
+            Select any two business areas to see how they relate and how my
+            experience brings them together. Each line shows how clearly my
+            profile supports the connection: solid for direct, dashed for
+            interpretive, dotted for independent.
           </p>
         </div>
         <SignalPlate />
@@ -86,12 +89,14 @@ export default function Home() {
       <section className={styles.ask} aria-labelledby="ask">
         <div className={styles.expHead}>
           <h2 id="ask" className={styles.h2}>
-            Have a question? <em>Ask it of her own record.</em>
+            Have a question about my experience? <em>Ask me.</em>
           </h2>
           <p className={styles.body}>
-            The Clarity Engine reads the same profile references as the plate
-            above and answers in a few sentences, showing exactly where each
-            answer comes from. If her profile doesn’t say, it will tell you.
+            The AI-powered Clarity Engine lets you explore my background in
+            your own words: my leadership approach, marketing, operations,
+            team development, career journey or awards. Each answer is short
+            and shows the profile information it comes from. If a detail isn’t
+            in my profile, it will say so rather than guess.
           </p>
         </div>
         <AskEngine />
@@ -101,12 +106,13 @@ export default function Home() {
       <section className={styles.fieldlog} aria-labelledby="log">
         <div className={styles.expHead}>
           <h2 id="log" className={styles.h2}>
-            Not one path. <em>Several threads at once.</em>
+            A career built across <em>multiple dimensions.</em>
           </h2>
           <p className={styles.body}>
-            Her profile lists roles, study, awards and volunteering that often
-            overlap. Move through the years to see what ran side by side,
-            dated exactly as she lists it.
+            My journey combines leadership roles, consulting, education, awards
+            and volunteering, and several have run at the same time. Move
+            through the years to see the roles and commitments listed for each
+            period, with dates exactly as they appear in my profile.
           </p>
         </div>
         <FieldLog />
@@ -115,12 +121,13 @@ export default function Home() {
       {/* ── Result ──────────────────────────────────── */}
       <section className={styles.result} aria-labelledby="res">
         <h2 id="res" className={styles.resultLine}>
-          <span>I bring structure</span>
-          <span className={styles.resultStrike}>without chaos.</span>
+          <span>I bring structure, clarity</span>
+          <span className={styles.resultStrike}>and confidence to teams.</span>
         </h2>
         <p className={styles.body}>
-          I help teams feel more confident and connected in what they’re
-          building.
+          My focus is on helping businesses identify what matters, align
+          their teams, simplify complexity and turn ideas into meaningful
+          outcomes.
         </p>
         <p className={styles.closing}>
           “I’m always open to connecting with people who are building,
@@ -128,7 +135,7 @@ export default function Home() {
           meaningful, and human.”
         </p>
         <div className={styles.connect}>
-          <p className={styles.annot}>If that sounds like your team →</p>
+          <p className={styles.annot}>Let’s connect and explore possibilities →</p>
           <a
             className={styles.connectLink}
             href="https://www.linkedin.com/in/soniaspecialist/"
@@ -143,8 +150,8 @@ export default function Home() {
       </section>
 
       <footer className={styles.colophon}>
-        <span>Built from Soniaa’s supplied professional profile. Quoted text is hers; summaries and connections are editorial.</span>
-        <span>A clearer view of the work behind the titles.</span>
+        <span>Built from my professional profile. Text in quotation marks is my own wording; summaries and connections are editorial.</span>
+        <span>Interactive business map, AI-assisted questions and a career timeline.</span>
       </footer>
     </main>
   );

@@ -107,7 +107,7 @@ export const SIGNALS: Signal[] = [
   {
     id: "demand",
     label: "Demand Generation",
-    descriptor: "From her roles",
+    descriptor: "From my roles",
     index: "S.05",
     pos: { x: 50, y: 10 },
     source: {
@@ -120,7 +120,7 @@ export const SIGNALS: Signal[] = [
   {
     id: "insight",
     label: "Market Insight",
-    descriptor: "From her roles",
+    descriptor: "From my roles",
     index: "S.06",
     pos: { x: 50, y: 90 },
     source: {
@@ -346,7 +346,7 @@ export const CONNECTION_BY_KEY = new Map(
 export const EVIDENCE_LABEL: Record<Evidence, string> = {
   direct: "Direct",
   interpretive: "Interpretive",
-  open: "Open",
+  open: "Independent",
 };
 
 /**

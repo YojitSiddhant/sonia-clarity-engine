@@ -148,13 +148,13 @@ describe("suggested questions keep their sources", () => {
 });
 
 describe("source labels", () => {
-  it("the name source shows a neutral Profile label, not “Her words”", () => {
+  it("the name source shows a neutral Profile label, not “My words”", () => {
     expect(sourceLabel({ id: "profile:name", evidence: "direct" })).toBe("Profile");
   });
   it("ordinary sources keep their labels", () => {
     const quote = KNOWLEDGE_BY_ID.get("signal:people")!;
     expect(quote.evidence).toBe("direct");
-    expect(sourceLabel(quote)).toBe("Her words");
+    expect(sourceLabel(quote)).toBe("My words");
     expect(sourceLabel(KNOWLEDGE_BY_ID.get("log:w-founder")!)).toBe("Dated record");
     const interp = [...KNOWLEDGE_BY_ID.values()].find((d) => d.evidence === "interpretive")!;
     expect(sourceLabel(interp)).toBe("Editorial reading");

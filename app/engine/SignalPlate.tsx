@@ -104,11 +104,11 @@ export default function SignalPlate() {
     <div className={styles.wrap}>
       <div className={styles.figureCol}>
         <p className={`${styles.note} ${styles.plateIntro}`}>
-          Four ideas from her About. Two more surfaced in her experience.
+          Four areas come from my About section. Demand Generation and Market Insight come from my roles.
         </p>
         <figure
           className={styles.plate}
-          aria-label="Diagram: Brand, Messaging, People and Operations, connected through clarity"
+          aria-label="Diagram: six business areas, connected through clarity at the centre"
         >
           <svg
             className={styles.lines}
@@ -153,7 +153,7 @@ export default function SignalPlate() {
             type="button"
             className={`${styles.core} ${coreOpen ? styles.coreOn : ""}`}
             aria-pressed={coreOpen}
-            aria-label="Clarity: read Soniaa’s method"
+            aria-label="Clarity: read my method"
             onClick={openCore}
           >
             <span>clarity</span>
@@ -199,17 +199,17 @@ export default function SignalPlate() {
 
         <div className={styles.key}>
           <p className={styles.caption}>
-            Fig. 2 — The Engine: Select one signal, then another to explore
-            their connection. Select the centre to read her method.
+            Fig. 2 — Select one area, then another to explore their
+            connection. Select the centre to read my method.
           </p>
-          <ul className={styles.legend} aria-label="How strong each line is">
+          <ul className={styles.legend} aria-label="How strongly each connection is supported">
             {(
               [
-                ["direct", "her words name both signals"],
-                ["interpretive", "her words cover both; the link is our reading"],
+                ["direct", "my own words connect both areas"],
+                ["interpretive", "drawn from the wider context of my experience; the link is an editorial reading"],
                 [
                   "open",
-                  `her profile doesn’t connect them; shown as two separate notes${
+                  `both areas appear in my profile but aren’t directly connected; shown as two separate notes${
                     ALL_PAIRS.some(([s, t]) => lookup(s, t).evidence === "open")
                       ? ""
                       : " (none at present)"
@@ -233,9 +233,9 @@ export default function SignalPlate() {
       <aside ref={readoutRef} className={styles.readout} aria-live="polite">
         {coreOpen && (
           <div>
-            <p className={styles.kicker}>Core — clarity</p>
+            <p className={styles.kicker}>At the centre — clarity</p>
             <p className={styles.readTitle}>
-              The method at the centre: <em>find the root, keep it simple.</em>
+              My method: <em>find the root, keep it simple.</em>
             </p>
             {CORE_NOTES.map((n) => (
               <div key={n.quote}>
@@ -249,21 +249,21 @@ export default function SignalPlate() {
               </div>
             ))}
             <p className={styles.note}>
-              This is how she works, not one more signal, so it doesn’t pair.
+              This is how I work across every area, so it isn’t paired with
+              just one.
             </p>
           </div>
         )}
 
         {picked.length === 0 && !coreOpen && (
           <div className={styles.empty}>
-            <p className={styles.kicker}>Reading — idle</p>
+            <p className={styles.kicker}>Your selection</p>
             <p className={styles.readTitle}>
-              Nothing selected. Start anywhere: every signal can be paired with
-              any other.
+              Select any two areas to see how they connect. Start anywhere.
             </p>
             <p className={styles.note}>
-              {SIGNALS.length} signals, {ALL_PAIRS.length} lines, one thing at
-              the crossing.
+              Six business areas. Fifteen possible connections. One integrated
+              perspective.
             </p>
           </div>
         )}
@@ -271,7 +271,7 @@ export default function SignalPlate() {
         {picked.length === 1 && a && (
           <div>
             <p className={styles.kicker}>
-              Reading — {byId[a].index} / {byId[a].label}
+              Selected — {byId[a].index} / {byId[a].label}
             </p>
             <p className={styles.readTitle}>
               {byId[a].affects ? (
@@ -286,7 +286,7 @@ export default function SignalPlate() {
             </p>
             <Quote source={byId[a].source} />
             <p className={styles.note}>
-              Now pick a second signal to trace a connection.
+              Now select a second area to see how they connect.
             </p>
           </div>
         )}
@@ -294,7 +294,7 @@ export default function SignalPlate() {
         {connection && a && b && (
           <div>
             <p className={styles.kicker}>
-              Line — {byId[a].label} ↔ {byId[b].label}
+              Connection — {byId[a].label} ↔ {byId[b].label}
               <span className={styles.srOnly}>, evidence: </span>
               <span className={`${styles.badge} ${BADGE_CLASS[connection.evidence]}`}>
                 {EVIDENCE_LABEL[connection.evidence]}
@@ -316,7 +316,7 @@ export default function SignalPlate() {
                   <section
                     key={id}
                     className={styles.sideNote}
-                    aria-label={`${byId[id].label}: a note from her profile`}
+                    aria-label={`${byId[id].label}: a note from my profile`}
                   >
                     <p className={styles.sideLabel}>
                       {byId[id].index} / {byId[id].label}
@@ -325,7 +325,7 @@ export default function SignalPlate() {
                   </section>
                 ))}
                 <p className={styles.sourceNote}>
-                  Her profile presents these two examples separately; it
+                  My profile presents these two examples separately; it
                   doesn’t state a connection between them.
                 </p>
               </>
@@ -339,7 +339,7 @@ export default function SignalPlate() {
           onClick={reset}
           disabled={picked.length === 0 && !coreOpen}
         >
-          Clear the plate
+          Reset selection
         </button>
       </aside>
     </div>

@@ -1,7 +1,7 @@
 import type { Citation } from "./answer";
 
 const EVIDENCE_LABEL: Record<Citation["evidence"], string> = {
-  direct: "Her words",
+  direct: "My words",
   interpretive: "Editorial reading",
   record: "Dated record",
 };

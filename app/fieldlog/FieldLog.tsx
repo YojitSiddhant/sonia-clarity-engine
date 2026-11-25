@@ -8,7 +8,6 @@ import {
   FIRST_YEAR,
   PRESENT_STOP,
   LANE_LABEL,
-  SECTION,
   type Entry,
   type Lane,
   type When,
@@ -269,7 +268,7 @@ export default function FieldLog() {
       <div className={styles.plateCol}>
         <figure
           className={styles.plate}
-          aria-label={`Timeline from ${FIRST_YEAR} to Present, in four lanes: work, education, recognition and volunteering. Use the year slider below to read each year.`}
+          aria-label={`Career timeline from ${FIRST_YEAR} to Present, in four rows: experience, education, awards and volunteering. Use the year slider below to see each year.`}
         >
           {/* year grid + needle */}
           <div className={styles.grid} aria-hidden="true">
@@ -427,8 +426,9 @@ export default function FieldLog() {
         </div>
 
         <p className={styles.caption}>
-          Fig. 3 — The Field Log: Choose a year or press Play. Stacked rows
-          show timing overlap, not rank or sequence.
+          Fig. 3 — Career timeline: choose a year or press Play. Stacked rows
+          show roles that overlapped in time, not a ranking or order of
+          importance.
         </p>
         <ul className={styles.legend} aria-label="Legend">
           <li>
@@ -441,7 +441,7 @@ export default function FieldLog() {
           </li>
           <li>
             <span className={`${styles.legendBar} ${styles.legendPresent}`} aria-hidden="true" />{" "}
-            listed as “Present”; no end date is claimed
+            still listed as “Present” (no end date)
           </li>
         </ul>
       </div>
@@ -453,7 +453,7 @@ export default function FieldLog() {
 
       {/* Manual year changes are announced; silent while playback runs. */}
       <aside className={styles.readout} aria-live={playing ? "off" : "polite"}>
-        <p className={styles.kicker}>Reading — {yearLabel(year)}</p>
+        <p className={styles.kicker}>Year — {yearLabel(year)}</p>
         <p className={styles.readTitle}>
           {year === PRESENT_STOP ? "Still listed as “Present”: " : `In ${year}: `}
           <em>{summary(year)}</em>
@@ -472,8 +472,7 @@ export default function FieldLog() {
                   <li key={e.id}>
                     <span className={styles.itemTitle}>{e.title}</span>
                     <span className={styles.itemWhere}>
-                      {SECTION[e.lane]} · {e.org} ·{" "}
-                      {e.dates}
+                      {e.org} · {e.dates}
                     </span>
                     {e.note && <span className={styles.itemNote}>{e.note}</span>}
                   </li>
