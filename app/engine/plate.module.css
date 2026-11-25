@@ -42,9 +42,22 @@
   transition: opacity 300ms ease, stroke 300ms ease, stroke-width 300ms ease;
 }
 
+/* evidence strength: solid = direct, dashed = interpretive, dotted = open */
+.edgeDirect {
+  stroke-dasharray: none;
+}
+
+.edgeInterpretive {
+  stroke-dasharray: 7 5;
+}
+
+.edgeOpen {
+  stroke-dasharray: 1.5 5;
+  stroke-linecap: round;
+}
+
 .edgeHint {
-  opacity: 0.7;
-  stroke-dasharray: 4 4;
+  opacity: 0.75;
 }
 
 .edgeActive {
@@ -148,11 +161,16 @@
   }
 }
 
+.figureCol {
+  min-width: 0;
+}
+
+.key {
+  margin-top: 0.75rem;
+}
+
 .caption {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(100% + 0.6rem);
+  margin: 0 0 0.75rem;
   font-family: var(--font-mono);
   font-size: 0.72rem;
   line-height: 1.5;
@@ -168,7 +186,7 @@
 
 @media (max-width: 860px) {
   .readout {
-    margin-top: 3.5rem;
+    margin-top: 0.5rem;
     min-height: 0;
   }
 }
@@ -241,4 +259,109 @@
   .node {
     transition: none;
   }
+}
+
+/* ── legend ───────────────────────────── */
+.legend {
+  list-style: none;
+  margin: 0;
+  padding: 0.6rem 0 0;
+  border-top: 1px solid var(--rule);
+  display: grid;
+  gap: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+.legend li {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.legend b {
+  color: var(--ink);
+  font-weight: 500;
+  margin-right: 0.35rem;
+}
+
+.legendLine {
+  width: 2.5rem;
+  height: 6px;
+  overflow: visible;
+}
+
+.legendLine line {
+  opacity: 1;
+  stroke-width: 1.5;
+}
+
+/* ── evidence badge + editorial reading ─ */
+.badge {
+  display: inline-block;
+  margin-left: 0.6rem;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid currentColor;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  vertical-align: 1px;
+}
+
+.badgeDirect {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+.badgeInterpretive {
+  color: var(--ink);
+  border-style: dashed;
+}
+
+.badgeOpen {
+  color: var(--ink-soft);
+  border-style: dotted;
+}
+
+.reading {
+  margin: 0 0 1.25rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px dashed var(--rule);
+  background: rgba(255, 255, 255, 0.25);
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+
+.readingTag,
+.excerptTag {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--signal);
+}
+
+.reset:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.reset:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 3px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }

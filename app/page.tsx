@@ -81,8 +81,10 @@ export default function Home() {
             Pull any two signals. See what holds them together.
           </h2>
           <p className={styles.body}>
-            Every line on this plate is backed by something she actually
-            wrote about her work, quoted as written, with where and when.
+            Every pair responds, but not every pair is proven. Each line is
+            drawn by how strongly her own words support it: solid where they
+            name both signals, dashed where the link is our reading, dotted
+            where her profile doesn’t speak to it.
           </p>
         </div>
         <SignalPlate />
