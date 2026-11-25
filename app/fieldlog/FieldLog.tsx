@@ -427,9 +427,8 @@ export default function FieldLog() {
         </div>
 
         <p className={styles.caption}>
-          Fig. 3 — The Field Log. Move the needle to a year to read what her
-          profile lists for it, or press Play to step through the years. Stacked rows show overlap only; their order
-          means nothing about rank or sequence.
+          Fig. 3 — The Field Log: Choose a year or press Play. Stacked rows
+          show timing overlap, not rank or sequence.
         </p>
         <ul className={styles.legend} aria-label="Legend">
           <li>

@@ -181,8 +181,7 @@ export default function AskEngine() {
         </div>
 
         <p id="ask-note" className={styles.note}>
-          Answers are generated only from the profile references used on this
-          page, and may not cover everything. Nothing you type is stored.
+          Answers use Soniaa’s profile references. Your questions aren’t stored.
         </p>
       </div>
 

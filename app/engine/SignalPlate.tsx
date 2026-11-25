@@ -199,9 +199,8 @@ export default function SignalPlate() {
 
         <div className={styles.key}>
           <p className={styles.caption}>
-            Fig. 2 — The engine. Select one signal to read it; select a second
-            to read the line between them. A third selection replaces the
-            oldest. Select clarity, at the centre, to read her method.
+            Fig. 2 — The Engine: Select one signal, then another to explore
+            their connection. Select the centre to read her method.
           </p>
           <ul className={styles.legend} aria-label="How strong each line is">
             {(
