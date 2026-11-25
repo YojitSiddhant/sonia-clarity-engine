@@ -32,8 +32,22 @@ export type SourceDoc = {
 
 const label = (id: string) => SIGNALS.find((s) => s.id === id)?.label ?? id;
 
+/**
+ * Her name, exactly as the profile shows it (SONIA-INFO/SERVICES:
+ * "Soniaa S."). Nothing beyond that line is claimed.
+ */
+const PROFILE_NAME: SourceDoc = {
+  id: "profile:name",
+  section: "Services",
+  text: "Soniaa S.",
+  evidence: "direct",
+  // No bare "name" tag: "Name the companies…" is not an identity question.
+  // Name questions reach this through IDENTITY below.
+  tags: ["identity", "person", "profile", "founder"],
+};
+
 function build(): SourceDoc[] {
-  const docs: SourceDoc[] = [];
+  const docs: SourceDoc[] = [PROFILE_NAME];
 
   for (const s of SIGNALS) {
     docs.push({
@@ -101,6 +115,7 @@ const EXPAND: Record<string, string[]> = {
   teams: ["people", "team", "teams", "leadership", "mentored"],
   people: ["people", "team", "teams"],
   leadership: ["people", "leader", "leadership", "mentored"],
+  leader: ["people", "leader", "leadership", "mentored"],
   lead: ["people", "led", "leader"],
   hiring: ["people", "hiring"],
   build: ["built", "building"],
@@ -127,7 +142,50 @@ const EXPAND: Record<string, string[]> = {
   mba: ["education", "mba"],
   method: ["method", "root", "clarity"],
   approach: ["approach", "method", "root"],
+  // where she works, however it is phrased
+  work: ["work", "role"],
+  works: ["work", "role"],
+  worked: ["work", "role"],
+  working: ["work", "role"],
+  employed: ["work", "role"],
+  employer: ["work", "role"],
+  employers: ["work", "role"],
+  job: ["work", "role"],
+  jobs: ["work", "role"],
+  position: ["work", "role"],
+  positions: ["work", "role"],
+  company: ["work", "role"],
+  companies: ["work", "role"],
 };
+
+/** "now", "currently", "these days"… */
+const CURRENT = /\b(?:current(?:ly)?|now|presently|today|these\s+days|at\s+present|at\s+the\s+moment)\b/i;
+
+/**
+ * A question about where she works *now*: every work record whose listed
+ * dates end in "Present", and nothing else. Being listed as Present is the
+ * only evidence of "current" the profile gives.
+ */
+export function isCurrentWorkQuestion(question: string): boolean {
+  if (!CURRENT.test(question)) return false;
+  return words(question).some((w) => (EXPAND[w] ?? []).includes("work") || w === "role" || w === "roles");
+}
+
+/**
+ * Split a compound question into the separate things it asks
+ * ("What is her age and currently where is she working?" → two parts).
+ * Only splits where a new question clearly starts, so "marketing and
+ * operations" stays one topic.
+ */
+export function splitQuestion(question: string): string[] {
+  const parts = question
+    .split(
+      /\s*(?:[?;]|,?\s+\b(?:and|also|plus)\b)\s+(?=(?:(?:currently|now|also)\s+)?(?:what|what['’]s|where|where['’]s|who|who['’]s|when|which|how|is|are|was|were|does|do|did|has|have|tell|can|could)\b)/i,
+    )
+    .map((p) => p.trim().replace(/^(?:and|also|plus)\s+/i, "").trim())
+    .filter((p) => p.replace(/[^a-z0-9]/gi, "").length > 1);
+  return parts.length ? parts : [question];
+}
 
 const words = (s: string) =>
   s
@@ -135,6 +193,22 @@ const words = (s: string) =>
     .replace(/[^a-z0-9\s-]/g, " ")
     .split(/\s+/)
     .filter((w) => w.length > 1 && !STOP.has(w));
+
+/**
+ * Questions about who she is ("What's her name?", "What is the name of the
+ * user?", "Who is the founder?"). Deliberately narrow: "user" or "name"
+ * alone elsewhere in a question does not count.
+ */
+const IDENTITY =
+  /\b(?:(?:her|soniaa?(?:['’]s)?)\s+name|name\s+of\s+(?:the\s+)?(?:user|person|founder|profile(?:\s+owner)?|soniaa?)|who\s*(?:is|['’]s)\s+(?:she|soniaa?|the\s+(?:user|person|founder|profile\s+owner))\b)/i;
+
+const titleWords = (d: SourceDoc) => (d.entry ? words(`${d.entry.title} ${d.entry.org}`) : []);
+
+/** How many dated records each title/organisation word appears in. */
+const RECORD_FREQ = new Map<string, number>();
+for (const d of KNOWLEDGE) for (const w of new Set(titleWords(d))) RECORD_FREQ.set(w, (RECORD_FREQ.get(w) ?? 0) + 1);
+/** A word naming three or fewer records ("appirio", "founder") is distinctive. */
+const DISTINCTIVE_MAX = 3;
 
 const activeIn = (e: Entry, year: number) => {
   if (!e.end) return e.start.y === year;
@@ -170,12 +244,18 @@ export function retrieve(question: string): SourceDoc[] {
       .slice(0, MAX_YEAR_DOCS);
   }
 
+  // "Where does she work now?": the roles listed as Present.
+  if (isCurrentWorkQuestion(question)) {
+    return KNOWLEDGE.filter((d) => d.entry?.lane === "work" && d.entry.end === "present").slice(0, MAX_YEAR_DOCS);
+  }
+
   // "What awards / volunteering / study…" asks for a whole lane: return all of it.
   const lane = listLane(question);
   if (lane) return KNOWLEDGE.filter((d) => d.entry?.lane === lane).slice(0, MAX_YEAR_DOCS);
 
   const q = words(question);
   const terms = new Set(q.flatMap((w) => [w, ...(EXPAND[w] ?? [])]));
+  if (IDENTITY.test(question)) terms.add("identity");
   if (!terms.size) return [];
 
   const scored = KNOWLEDGE.map((d) => {
@@ -188,6 +268,12 @@ export function retrieve(question: string): SourceDoc[] {
     }
     // Quotes explain how she works; dated records only list facts.
     if (score && d.evidence !== "record") score += 1;
+    // …but a record whose own title or organisation the question names
+    // (a distinctive word like "appirio") is exactly what was asked for.
+    if (d.entry) {
+      const own = titleWords(d);
+      if ([...terms].some((t) => own.includes(t) && (RECORD_FREQ.get(t) ?? 0) <= DISTINCTIVE_MAX)) score += 1;
+    }
     return { d, score };
   })
     .filter((x) => x.score >= 2)

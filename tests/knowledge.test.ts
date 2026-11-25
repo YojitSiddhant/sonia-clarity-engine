@@ -6,7 +6,9 @@ describe("knowledge base", () => {
   it("is built only from the curated app data, with unique ids", () => {
     const ids = KNOWLEDGE.map((d) => d.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(ids.every((id) => /^(signal|pair|core|log):/.test(id))).toBe(true);
+    // curated data, plus exactly one transcribed profile line: her name
+    expect(ids.filter((id) => id.startsWith("profile:"))).toEqual(["profile:name"]);
+    expect(ids.every((id) => /^(signal|pair|core|log):/.test(id) || id === "profile:name")).toBe(true);
   });
 
   it("never includes open pairs, which have no source", () => {

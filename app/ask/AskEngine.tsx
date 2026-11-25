@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import styles from "./ask.module.css";
 import type { AnswerProvider, AnswerSentence, Citation } from "./answer";
+import { sourceLabel } from "./sourceLabel";
 
 const MAX = 300;
 
@@ -17,7 +18,14 @@ const EXAMPLES = [
 type View =
   | { kind: "idle" }
   | { kind: "loading"; question: string }
-  | { kind: "answer"; question: string; sentences: AnswerSentence[]; citations: Citation[]; provider: AnswerProvider | null }
+  | {
+      kind: "answer";
+      question: string;
+      sentences: AnswerSentence[];
+      citations: Citation[];
+      provider: AnswerProvider | null;
+      gaps: string[];
+    }
   | { kind: "unsupported"; question: string; answer: string }
   | { kind: "notice"; question?: string; message: string };
 
@@ -54,12 +62,6 @@ const PROVIDER_LABEL: Record<AnswerProvider, { visible: string; spoken: string }
 };
 const asProvider = (v: unknown): AnswerProvider | null =>
   typeof v === "string" && Object.hasOwn(PROVIDER_LABEL, v) ? (v as AnswerProvider) : null;
-
-const EVIDENCE_LABEL: Record<Citation["evidence"], string> = {
-  direct: "Her words",
-  interpretive: "Editorial reading",
-  record: "Dated record",
-};
 
 export default function AskEngine() {
   const [enabled, setEnabled] = useState<boolean | null>(null);
@@ -107,6 +109,7 @@ export default function AskEngine() {
           sentences: data.sentences ?? [],
           citations: data.citations ?? [],
           provider: asProvider(data.provider),
+          gaps: Array.isArray(data.gaps) ? data.gaps.filter((g: unknown): g is string => typeof g === "string").slice(0, 4) : [],
         });
       } else if (data?.state === "unsupported") {
         setView({ kind: "unsupported", question: q, answer: data.answer });
@@ -224,6 +227,12 @@ export default function AskEngine() {
                 </span>
               )}
             </p>
+            {/* parts of the question her references don't cover: said plainly, never guessed */}
+            {view.gaps.length > 0 && (
+              <p className={styles.gap}>
+                Not in her profile references: {view.gaps.map((g) => `“${g}”`).join(", ")}.
+              </p>
+            )}
             {/* each sentence keeps the numbers of the sources it relies on */}
             {(() => {
               const shape = shapeOf(view.sentences);
@@ -268,7 +277,7 @@ export default function AskEngine() {
                     <span className={styles.srcNum} aria-hidden="true">
                       [{i + 1}]
                     </span>
-                    <span className={`${styles.tag} ${styles[`tag_${c.evidence}`]}`}>{EVIDENCE_LABEL[c.evidence]}</span>
+                    <span className={`${styles.tag} ${styles[`tag_${c.evidence}`]}`}>{sourceLabel(c)}</span>
                   </span>
                   <span className={styles.srcText}>{c.evidence === "record" ? c.text : `“${c.text}”`}</span>
                   {c.reading && <span className={styles.srcReading}>Our reading: {c.reading}</span>}
