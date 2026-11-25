@@ -9,8 +9,8 @@ export default function Home() {
     <main className={styles.sheet}>
       <header className={styles.masthead}>
         <span>The Clarity Engine</span>
-        <span className={styles.mastMid}>A working notebook on how Sonia thinks</span>
-        <span>Plate I</span>
+        <span className={styles.mastMid}>A closer look at Sonia’s work, ideas, and experience</span>
+        <span>Sonia · Marketing &amp; Operations</span>
       </header>
 
       {/* ── Observation ─────────────────────────────── */}
@@ -156,8 +156,8 @@ export default function Home() {
       </section>
 
       <footer className={styles.colophon}>
-        <span>Source: Sonia’s public professional profile. Text in quotation marks is hers, verbatim; headings, annotations and framing are editorial.</span>
-        <span>Plate I · more plates to follow</span>
+        <span>Built from Sonia’s supplied professional profile. Quoted text is hers; summaries and connections are editorial.</span>
+        <span>A clearer view of the work behind the titles.</span>
       </footer>
     </main>
   );
