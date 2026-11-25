@@ -46,6 +46,22 @@ describe("retrieve", () => {
     expect(docs.every((d) => d.evidence === "record")).toBe(true);
   });
 
+  it("either spelling of her name (and its possessives) retrieves the same sources", () => {
+    const ids = (q: string) => retrieve(q).map((d) => d.id);
+    const pairs: Array<[string, string]> = [
+      ["How does Sonia connect marketing and operations?", "How does Soniaa connect marketing and operations?"],
+      ["What awards are listed in Sonia's profile?", "What awards are listed in Soniaa’s profile?"],
+      ["How does Sonia lead teams?", "How does SONIAA lead teams?"],
+    ];
+    for (const [old, current] of pairs) {
+      const expected = ids(old);
+      expect(expected.length).toBeGreaterThan(0);
+      expect(ids(current)).toEqual(expected);
+      // the name itself is never what makes a question match
+      expect(ids(current.replace(/soniaa/i, ""))).toEqual(expected);
+    }
+  });
+
   it("regression: the suggested awards question retrieves all ten award records", () => {
     const docs = retrieve("What awards are listed in her profile?");
     expect(docs).toHaveLength(10);

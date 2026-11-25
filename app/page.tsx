@@ -9,8 +9,8 @@ export default function Home() {
     <main className={styles.sheet}>
       <header className={styles.masthead}>
         <span>The Clarity Engine</span>
-        <span className={styles.mastMid}>A closer look at Sonia’s work, ideas, and experience</span>
-        <span>Sonia · Marketing &amp; Operations</span>
+        <span className={styles.mastMid}>A closer look at Soniaa’s work, ideas, and experience</span>
+        <span>Soniaa · Marketing &amp; Operations</span>
       </header>
 
       {/* ── Observation ─────────────────────────────── */}
@@ -40,7 +40,7 @@ export default function Home() {
           <blockquote className={styles.verbatim}>
             “my strength isn’t just one skill or expertise but it lies in
             seeing the whole picture”
-            <cite>Sonia, About</cite>
+            <cite>Soniaa, About</cite>
           </blockquote>
           <p className={styles.body}>
             Across global companies, early-stage teams and growing startups,
@@ -148,7 +148,7 @@ export default function Home() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Connect with Sonia on LinkedIn
+            Connect with Soniaa on LinkedIn
             <span aria-hidden="true"> ↗</span>
             <span className={styles.srOnly}> (opens in a new tab)</span>
           </a>
@@ -156,7 +156,7 @@ export default function Home() {
       </section>
 
       <footer className={styles.colophon}>
-        <span>Built from Sonia’s supplied professional profile. Quoted text is hers; summaries and connections are editorial.</span>
+        <span>Built from Soniaa’s supplied professional profile. Quoted text is hers; summaries and connections are editorial.</span>
         <span>A clearer view of the work behind the titles.</span>
       </footer>
     </main>

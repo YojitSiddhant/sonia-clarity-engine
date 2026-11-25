@@ -89,7 +89,7 @@ export const KNOWLEDGE_BY_ID = new Map(KNOWLEDGE.map((d) => [d.id, d]));
 // ── retrieval ──────────────────────────────────────────────────────
 
 const STOP = new Set(
-  "a an and are as at be by can did do does for from has have her how in is it its of on or she sonia's sonia show shows tell the their this to was what when where which who why with about around her's me".split(
+  "a an and are as at be by can did do does for from has have her how in is it its of on or she sonia's sonia soniaa's soniaa show shows tell the their this to was what when where which who why with about around her's me".split(
     " ",
   ),
 );

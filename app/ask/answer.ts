@@ -44,7 +44,7 @@ export type AskResult =
   | { state: "unsupported"; answer: string };
 
 export const UNSUPPORTED =
-  "Sonia’s supplied profile references don’t cover that, so the Clarity Engine won’t guess.";
+  "Soniaa’s supplied profile references don’t cover that, so the Clarity Engine won’t guess.";
 
 const unsupported = (): AskResult => ({ state: "unsupported", answer: UNSUPPORTED });
 
@@ -91,11 +91,11 @@ export function quotesMatch(text: string, sources: SourceDoc[]): boolean {
 
 // ── prompt ────────────────────────────────────────────────────────
 
-const SYSTEM = `You answer questions about Sonia's professional work for an editorial website.
+const SYSTEM = `You answer questions about Soniaa's professional work for an editorial website.
 Rules:
 - Use ONLY the SOURCES provided. No outside knowledge, no assumptions.
 - If the sources do not clearly answer the question, return supported=false and no sentences.
-- Return 1 to 3 short, plain sentences in the third person ("Sonia" / "she"), unless a TASK line asks for a list.
+- Return 1 to 3 short, plain sentences in the third person ("Soniaa" / "she"), unless a TASK line asks for a list.
 - Every sentence must list in sourceIds the id(s) of the source(s) that support it. Use only ids shown in SOURCES.
 - Do not invent or infer dates, metrics, results, motivations, causes, credentials or relationships between roles.
 - When several roles share dates, say they are listed at the same time; never imply one led to another or rank them.

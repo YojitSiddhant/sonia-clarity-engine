@@ -7,7 +7,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "The Clarity Engine",
   description:
-    "An editorial notebook on how Sonia connects brand, messaging, operations and people.",
+    "An editorial notebook on how Soniaa connects brand, messaging, operations and people.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -8,7 +8,7 @@ const MAX = 300;
 
 // Each example maps to entries that exist in the curated data.
 const EXAMPLES = [
-  "How does Sonia connect marketing and operations?",
+  "How does Soniaa connect marketing and operations?",
   "What experience does she have building teams?",
   "What does her timeline show around 2020?",
   "What awards are listed in her profile?",

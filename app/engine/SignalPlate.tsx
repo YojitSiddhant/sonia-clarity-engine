@@ -150,7 +150,7 @@ export default function SignalPlate() {
             type="button"
             className={`${styles.core} ${coreOpen ? styles.coreOn : ""}`}
             aria-pressed={coreOpen}
-            aria-label="Clarity: read Sonia’s method"
+            aria-label="Clarity: read Soniaa’s method"
             onClick={openCore}
           >
             <span>clarity</span>
