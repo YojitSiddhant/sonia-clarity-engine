@@ -46,6 +46,12 @@ describe("retrieve", () => {
     expect(docs.every((d) => d.evidence === "record")).toBe(true);
   });
 
+  it("regression: the suggested awards question retrieves all ten award records", () => {
+    const docs = retrieve("What awards are listed in her profile?");
+    expect(docs).toHaveLength(10);
+    expect(docs.every((d) => d.entry?.lane === "recognition" && d.section === "Awards")).toBe(true);
+  });
+
   it("returns a whole lane for lane questions", () => {
     expect(retrieve("What awards are listed in her profile?")).toHaveLength(10);
     expect(retrieve("Where did she volunteer?")).toHaveLength(3);

@@ -9,7 +9,7 @@
 
 import { connection } from "next/server";
 import { answerQuestion, cleanQuestion, MAX_QUESTION } from "../../ask/answer";
-import { geminiConfigured, geminiProvider } from "../../ask/gemini";
+import { geminiConfigured, geminiProvider, ProviderError } from "../../ask/gemini";
 import { clientId, createRateLimiter } from "../../ask/rateLimit";
 
 const json = (body: unknown, status = 200) =>
@@ -65,7 +65,14 @@ export async function POST(request: Request) {
 
   try {
     return json(await answerQuestion(question, geminiProvider));
-  } catch {
+  } catch (e) {
+    // One safe line for diagnosis: category, HTTP status, attempts. Never the
+    // key, prompt, visitor question or provider response.
+    const info =
+      e instanceof ProviderError
+        ? `category=${e.category} status=${e.status ?? "-"} attempts=${e.attempts}`
+        : "category=unexpected";
+    console.warn(`[ask] provider failure ${info}`);
     // Never pass provider details, prompts or stack traces to the browser.
     return json(
       { state: "error", message: "The Clarity Engine couldn’t answer just now. Please try again shortly." },

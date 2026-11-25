@@ -9,7 +9,7 @@
  */
 
 import { SIGNALS, CONNECTIONS, CORE_NOTES } from "../engine/signals";
-import { ENTRIES, SECTION, PRESENT_STOP, type Entry } from "../fieldlog/entries";
+import { ENTRIES, SECTION, PRESENT_STOP, type Entry, type Lane } from "../fieldlog/entries";
 
 export type Evidence = "direct" | "interpretive" | "record";
 
@@ -146,6 +146,17 @@ const MAX_DOCS = 8;
 const MAX_YEAR_DOCS = 12;
 
 /** A small set of the entries most relevant to the question. */
+/**
+ * Questions that ask for a whole list ("What awards…", "Where did she
+ * volunteer…", "What did she study…") map to one Field Log lane.
+ */
+export function listLane(question: string): Lane | null {
+  if (/\b(award|awards|recognition|honou?rs?)\b/i.test(question)) return "recognition";
+  if (/\bvolunteer(ing)?\b/i.test(question)) return "volunteering";
+  if (/\b(education|study|studied|degree|mba|university)\b/i.test(question)) return "education";
+  return null;
+}
+
 export function retrieve(question: string): SourceDoc[] {
   // Year questions ("around 2020", "in 2016") read the Field Log directly.
   const years = [...question.matchAll(/\b(20[0-2]\d)\b/g)]
@@ -160,13 +171,7 @@ export function retrieve(question: string): SourceDoc[] {
   }
 
   // "What awards / volunteering / study…" asks for a whole lane: return all of it.
-  const lane = /\b(award|awards|recognition|honou?rs?)\b/i.test(question)
-    ? "recognition"
-    : /\bvolunteer(ing)?\b/i.test(question)
-      ? "volunteering"
-      : /\b(education|study|studied|degree|mba|university)\b/i.test(question)
-        ? "education"
-        : null;
+  const lane = listLane(question);
   if (lane) return KNOWLEDGE.filter((d) => d.entry?.lane === lane).slice(0, MAX_YEAR_DOCS);
 
   const q = words(question);
