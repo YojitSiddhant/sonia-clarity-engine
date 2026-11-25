@@ -1,5 +1,6 @@
 import styles from "./page.module.css";
 import SignalPlate from "./engine/SignalPlate";
+import FieldLog from "./fieldlog/FieldLog";
 import { SIGNALS } from "./engine/signals";
 
 export default function Home() {
@@ -88,6 +89,22 @@ export default function Home() {
           </p>
         </div>
         <SignalPlate />
+      </section>
+
+      {/* ── Field log ───────────────────────────────── */}
+      <section className={styles.fieldlog} aria-labelledby="log">
+        <div className={styles.expHead}>
+          <p className={styles.label}>Field log</p>
+          <h2 id="log" className={styles.h2}>
+            Not one path. <em>Several threads at once.</em>
+          </h2>
+          <p className={styles.body}>
+            Her profile lists roles, study, awards and volunteering that often
+            overlap. Move through the years to see what ran side by side,
+            dated exactly as she lists it.
+          </p>
+        </div>
+        <FieldLog />
       </section>
 
       {/* ── Result ──────────────────────────────────── */}

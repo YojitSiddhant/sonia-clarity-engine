@@ -1,0 +1,434 @@
+/* Fig. 3 — The Field Log. Same tokens as the signal plate. */
+
+.wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .wrap {
+    grid-template-columns: 1fr;
+  }
+}
+
+.plateCol {
+  min-width: 0;
+}
+
+.plate {
+  position: relative;
+  margin: 2.2rem 0 0;
+  padding: 1rem 0.75rem 2.2rem 6.6rem;
+  border: 1px solid var(--ink);
+  background: var(--paper-deep);
+}
+
+@media (max-width: 520px) {
+  .plate {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+
+/* grid + needle share the lanes' coordinate space */
+.grid {
+  position: absolute;
+  top: 0;
+  bottom: 1.6rem;
+  left: 6.6rem;
+  right: 0.75rem;
+  pointer-events: none;
+}
+
+@media (max-width: 520px) {
+  .grid {
+    left: 0.5rem;
+    right: 0.5rem;
+  }
+}
+
+.gridLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 1px dashed var(--rule);
+  opacity: 0.35;
+}
+
+.gridMajor {
+  opacity: 0.8;
+}
+
+.presentZone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  background: repeating-linear-gradient(
+    135deg,
+    transparent 0 4px,
+    rgba(29, 26, 22, 0.05) 4px 5px
+  );
+}
+
+.needle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 2px solid var(--signal);
+  transform: translateX(-1px);
+  transition: left 220ms ease;
+  z-index: 2;
+}
+
+.needle::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: -6px;
+  border: 5px solid transparent;
+  border-top: 7px solid var(--signal);
+}
+
+/* lanes */
+.lane {
+  position: relative;
+  padding: 0.45rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.lane:first-of-type {
+  border-top: none;
+}
+
+.laneLabel {
+  position: absolute;
+  left: -6.1rem;
+  top: 0.5rem;
+  width: 5.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 520px) {
+  .laneLabel {
+    position: static;
+    display: block;
+    width: auto;
+    margin-bottom: 0.15rem;
+    font-size: 0.6rem;
+  }
+}
+
+.track {
+  position: relative;
+}
+
+.bar {
+  position: absolute;
+  height: 9px;
+  min-width: 4px;
+  background: var(--ink);
+  border-radius: 1px;
+  transition: opacity 220ms ease, background 220ms ease;
+}
+
+/* open end for entries still listed as Present */
+.barPresent {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  background: linear-gradient(to right, var(--ink) 80%, transparent);
+}
+
+.barPresent::after {
+  content: "";
+  position: absolute;
+  right: -7px;
+  top: -2px;
+  border: 6.5px solid transparent;
+  border-left: 7px solid currentColor;
+  border-right: 0;
+}
+
+.dot {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  transition: opacity 220ms ease, background 220ms ease;
+}
+
+.on {
+  opacity: 1;
+  z-index: 1;
+}
+
+.bar.on {
+  background: var(--signal);
+  color: var(--signal);
+}
+
+.barPresent.on {
+  background: linear-gradient(to right, var(--signal) 80%, transparent);
+}
+
+.dot.on {
+  background: var(--signal);
+  border-color: var(--signal);
+}
+
+.off {
+  opacity: 0.28;
+  color: var(--ink);
+}
+
+/* axis */
+.axis {
+  position: absolute;
+  left: 6.6rem;
+  right: 0.75rem;
+  bottom: 0.55rem;
+  height: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 520px) {
+  .axis {
+    left: 0.5rem;
+    right: 0.5rem;
+    font-size: 0.56rem;
+  }
+}
+
+.axis span {
+  position: absolute;
+  transform: translateX(-2px);
+}
+
+.axis .axisPresent {
+  left: auto !important;
+  right: 0;
+  transform: none;
+  color: var(--ink);
+}
+
+.margin {
+  position: absolute;
+  right: 0.5rem;
+  top: -1.9rem;
+  margin: 0;
+  font-family: var(--font-hand);
+  font-size: 1.1rem;
+  color: var(--signal);
+  transform: rotate(-1.5deg);
+  white-space: nowrap;
+}
+
+@media (max-width: 520px) {
+  .margin {
+    font-size: 0.95rem;
+  }
+}
+
+/* controls */
+.controls {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+
+.sliderLabel {
+  display: block;
+}
+
+.slider {
+  width: 100%;
+  height: 2.75rem; /* comfortable touch target */
+  accent-color: var(--signal);
+  cursor: pointer;
+  background: transparent;
+}
+
+.slider:focus-visible,
+.step:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 3px;
+}
+
+.step {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.step:disabled {
+  opacity: 0.35;
+  cursor: default;
+  box-shadow: none;
+}
+
+.caption {
+  margin: 0.75rem 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.legend {
+  list-style: none;
+  margin: 0;
+  padding: 0.6rem 0 0;
+  border-top: 1px solid var(--rule);
+  display: grid;
+  gap: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.legendBar {
+  flex: none;
+  display: inline-block;
+  width: 2.5rem;
+  height: 7px;
+  background: var(--ink);
+}
+
+.legendPresent {
+  background: linear-gradient(to right, var(--ink) 70%, transparent);
+}
+
+.legendDot {
+  flex: none;
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin: 0 15.5px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+}
+
+/* reading panel */
+.readout {
+  border-top: 3px solid var(--ink);
+  padding-top: 1rem;
+  min-height: 20rem;
+}
+
+@media (max-width: 860px) {
+  .readout {
+    min-height: 0;
+  }
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--signal);
+  margin: 0 0 0.75rem;
+}
+
+.readTitle {
+  font-family: var(--font-serif);
+  font-size: clamp(1.3rem, 2.4vw, 1.8rem);
+  line-height: 1.2;
+  margin: 0 0 1.25rem;
+}
+
+.readTitle em {
+  color: var(--signal);
+}
+
+.group {
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--rule);
+  margin-bottom: 0.75rem;
+}
+
+.groupLabel {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.items li {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.itemTitle {
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.itemWhere {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+.itemNote {
+  font-family: var(--font-hand);
+  font-size: 1.05rem;
+  line-height: 1.25;
+  color: var(--signal);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .needle,
+  .bar,
+  .dot {
+    transition: none;
+  }
+}
