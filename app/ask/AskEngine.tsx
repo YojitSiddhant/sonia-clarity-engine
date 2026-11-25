@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import styles from "./ask.module.css";
-import type { Citation } from "./answer";
+import type { AnswerSentence, Citation } from "./answer";
 
 const MAX = 300;
 
@@ -17,7 +17,7 @@ const EXAMPLES = [
 type View =
   | { kind: "idle" }
   | { kind: "loading"; question: string }
-  | { kind: "answer"; question: string; answer: string; citations: Citation[] }
+  | { kind: "answer"; question: string; sentences: AnswerSentence[]; citations: Citation[] }
   | { kind: "unsupported"; question: string; answer: string }
   | { kind: "notice"; question?: string; message: string };
 
@@ -67,7 +67,7 @@ export default function AskEngine() {
       const data = await res.json().catch(() => null);
       if (ctl.signal.aborted) return;
       if (data?.state === "answer") {
-        setView({ kind: "answer", question: q, answer: data.answer, citations: data.citations ?? [] });
+        setView({ kind: "answer", question: q, sentences: data.sentences ?? [], citations: data.citations ?? [] });
       } else if (data?.state === "unsupported") {
         setView({ kind: "unsupported", question: q, answer: data.answer });
       } else {
@@ -177,11 +177,25 @@ export default function AskEngine() {
         {view.kind === "answer" && (
           <div>
             <p className={styles.kicker}>Reading — “{view.question}”</p>
-            <p className={styles.answer}>{view.answer}</p>
+            {/* each sentence shows the numbers of the sources it relies on */}
+            <p className={styles.answer}>
+              {view.sentences.map((s, i) => (
+                <span key={i}>
+                  {s.text}
+                  {s.cites.map((n) => (
+                    <sup key={n} className={styles.cite}>
+                      <a href={`#ask-src-${n}`} aria-label={`source ${n}`}>
+                        [{n}]
+                      </a>
+                    </sup>
+                  ))}{" "}
+                </span>
+              ))}
+            </p>
             <p className={styles.sourcesLabel}>Sources from her profile</p>
             <ol className={styles.sources}>
-              {view.citations.map((c) => (
-                <li key={c.id}>
+              {view.citations.map((c, i) => (
+                <li key={c.id} id={`ask-src-${i + 1}`}>
                   <span className={`${styles.tag} ${styles[`tag_${c.evidence}`]}`}>{EVIDENCE_LABEL[c.evidence]}</span>
                   <span className={styles.srcText}>{c.evidence === "record" ? c.text : `“${c.text}”`}</span>
                   {c.reading && <span className={styles.srcReading}>Our reading: {c.reading}</span>}

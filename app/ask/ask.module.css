@@ -108,7 +108,7 @@
   margin: 0 0 0.5rem;
   font-family: var(--font-hand);
   font-size: 1.15rem;
-  color: var(--signal);
+  color: var(--signal-text);
 }
 
 .examples ul {
@@ -163,7 +163,7 @@
   font-size: 0.72rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--signal);
+  color: var(--signal-text);
   overflow-wrap: anywhere;
 }
 
@@ -208,6 +208,27 @@
   50% {
     opacity: 0.25;
   }
+}
+
+.cite {
+  margin-left: 0.1rem;
+  font-family: var(--font-mono);
+  font-size: 0.62em;
+  line-height: 0;
+}
+
+.cite a {
+  color: var(--signal-text);
+  text-decoration: none;
+}
+
+.cite a:hover {
+  text-decoration: underline;
+}
+
+.cite a:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
 }
 
 .sourcesLabel {

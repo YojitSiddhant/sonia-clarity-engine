@@ -3,41 +3,28 @@
  * GET  /api/ask                → { enabled } (is a server key configured?)
  *
  * The Gemini key stays on the server. Nothing is stored: no question logs,
- * no IP logs. The rate limiter keeps only salted hashes in memory, briefly.
+ * no IP logs. The rate limiter keeps only salted hashes in memory, briefly,
+ * and trusts a client-IP header only where the host guarantees it.
  */
 
-import { createHash, randomBytes } from "node:crypto";
 import { connection } from "next/server";
 import { answerQuestion, cleanQuestion, MAX_QUESTION } from "../../ask/answer";
 import { geminiConfigured, geminiProvider } from "../../ask/gemini";
+import { clientId, createRateLimiter } from "../../ask/rateLimit";
 
 const json = (body: unknown, status = 200) =>
   Response.json(body, { status, headers: { "cache-control": "no-store" } });
 
-// ── modest per-IP limit for a demo: 5 a minute, 20 an hour ──────────
-const WINDOWS = [
-  { ms: 60_000, max: 5 },
-  { ms: 3_600_000, max: 20 },
-];
-const SALT = randomBytes(16).toString("hex"); // per process; never stored
-const hits = new Map<string, number[]>();
-
-function limited(request: Request) {
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    request.headers.get("x-real-ip")?.trim() ||
-    "local";
-  const key = createHash("sha256").update(SALT + ip).digest("hex");
-  const now = Date.now();
-  const longest = WINDOWS[WINDOWS.length - 1].ms;
-  const recent = (hits.get(key) ?? []).filter((t) => now - t < longest);
-  const over = WINDOWS.some((w) => recent.filter((t) => now - t < w.ms).length >= w.max);
-  if (!over) recent.push(now);
-  hits.set(key, recent);
-  // Drop idle entries so memory stays small.
-  if (hits.size > 500) for (const [k, v] of hits) if (!v.some((t) => now - t < longest)) hits.delete(k);
-  return over;
-}
+// Per instance only — see app/ask/rateLimit.ts. The real spending ceiling is
+// the quota set on the Gemini API key.
+const limiter = createRateLimiter({
+  perClient: [
+    { ms: 60_000, max: 5 },
+    { ms: 3_600_000, max: 20 },
+  ],
+  perInstance: { ms: 60_000, max: 30 },
+  maxClients: 1_000,
+});
 
 export async function GET() {
   await connection(); // read the env at request time, not at build time
@@ -69,7 +56,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (limited(request)) {
+  if (limiter.limited(clientId(request.headers))) {
     return json(
       { state: "limited", message: "That’s a lot of questions in a short time. Please try again in a minute." },
       429,
