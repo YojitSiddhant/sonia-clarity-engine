@@ -331,6 +331,53 @@
   box-shadow: none;
 }
 
+/* optional narration toggle */
+.narrationRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.75rem;
+  margin-top: 0.7rem;
+}
+
+.narration {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.25rem;
+  padding: 0 0.7rem;
+  border: 1px dashed var(--rule);
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.narration:hover {
+  color: var(--ink);
+  border-color: var(--ink-soft);
+}
+
+.narrationOn {
+  border-style: solid;
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.narration:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 3px;
+}
+
+.narrationHint {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+
 .caption {
   margin: 0.75rem 0;
   font-family: var(--font-mono);

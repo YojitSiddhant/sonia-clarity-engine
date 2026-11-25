@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import styles from "./fieldlog.module.css";
+import { createNarrator, maxOverlap, sentenceFor, type Narrator } from "./narration";
 import {
   ENTRIES,
   FIRST_YEAR,
@@ -104,6 +105,43 @@ export default function FieldLog() {
   const drawnRef = useRef(centre(PRESENT_STOP));
   const needleRef = useRef<HTMLSpanElement>(null);
 
+  // Optional spoken narration: off by default, enabled only by the visitor,
+  // and spoken only while playback runs. Refs keep the animation loop in
+  // sync without stale state.
+  const [narrationOn, setNarrationOn] = useState(false);
+  const [narrationNote, setNarrationNote] = useState("");
+  const narrationOnRef = useRef(false);
+  const narratorRef = useRef<Narrator | null>(null);
+  const speakingRef = useRef(false); // a sentence is in progress: hold the needle
+  const spokenYearRef = useRef<number | null>(null); // last year narrated
+
+  // Stop speech now and forget the queue. The interrupted year is re-read
+  // from its start if playback resumes, so no half sentence is skipped.
+  const hush = () => {
+    narratorRef.current?.cancel();
+    speakingRef.current = false;
+    spokenYearRef.current = null;
+  };
+
+  const toggleNarration = async () => {
+    if (narrationOn) {
+      narrationOnRef.current = false;
+      setNarrationOn(false);
+      hush();
+      return;
+    }
+    narratorRef.current ??= createNarrator();
+    const ok = await narratorRef.current.ready();
+    if (!ok) {
+      setNarrationNote("Narration isn’t available in this browser.");
+      return;
+    }
+    setNarrationNote("");
+    spokenYearRef.current = null;
+    narrationOnRef.current = true;
+    setNarrationOn(true);
+  };
+
   // Put the needle at `t` in the DOM and in state, so a later render can't
   // leave it where the animation loop last drew it.
   const place = (t: number) => {
@@ -114,6 +152,7 @@ export default function FieldLog() {
 
   // Freeze the needle where it is and sync the selected year to it.
   const freeze = () => {
+    hush();
     setPlaying(false);
     place(drawnRef.current);
     const y = yearAt(tRef.current);
@@ -124,6 +163,7 @@ export default function FieldLog() {
   // Manual navigation always wins: it pauses playback first.
   const set = (y: number) => {
     const target = Math.min(PRESENT_STOP, Math.max(FIRST_YEAR, y));
+    hush(); // manual navigation never speaks
     if (playing) {
       setPlaying(false);
       setStatus(`Playback paused at ${yearLabel(target)}.`);
@@ -143,6 +183,7 @@ export default function FieldLog() {
     // From Present (or after finishing) replay from the start of 2002;
     // otherwise resume from wherever the needle is.
     if (tRef.current >= PLAY_END - 1e-6) tRef.current = FIRST_YEAR;
+    hush(); // replay/resume always starts with a clean speech queue
     const from = yearAt(tRef.current);
     setYear(from);
     setFinished(false);
@@ -168,10 +209,29 @@ export default function FieldLog() {
     const tick = (now: number) => {
       const dt = Math.min(0.1, (now - last) / 1000); // ignore long tab pauses
       last = now;
+      // While a sentence is being spoken, hold the needle on its year so the
+      // next sentence never starts early or overlaps.
+      if (speakingRef.current) {
+        raf = requestAnimationFrame(tick);
+        return;
+      }
       const t = Math.min(PLAY_END, tRef.current + dt * YEARS_PER_SECOND);
       tRef.current = t;
       draw(t);
-      setYear(yearAt(t)); // no re-render unless the year actually changed
+      const y = yearAt(t);
+      setYear(y); // no re-render unless the year actually changed
+
+      // Narrate each year once, on arrival; silent years say nothing.
+      if (narrationOnRef.current && narratorRef.current && spokenYearRef.current !== y && t < PLAY_END) {
+        spokenYearRef.current = y;
+        const text = sentenceFor(y);
+        if (text) {
+          speakingRef.current = true;
+          narratorRef.current.say(text, () => {
+            speakingRef.current = false;
+          });
+        }
+      }
       if (t >= PLAY_END) {
         setNeedleT(PLAY_END);
         setPlaying(false);
@@ -186,6 +246,20 @@ export default function FieldLog() {
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [playing]);
+
+  // A hidden tab stops speech (playback itself halts with the frame loop);
+  // leaving the page cancels anything still queued.
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.hidden) hush();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    const narrator = narratorRef;
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      narrator.current?.cancel();
+    };
+  }, []);
 
   const active = ENTRIES.filter((e) => isActive(e, year));
   const workCount = active.filter((e) => e.lane === "work").length;
@@ -315,6 +389,43 @@ export default function FieldLog() {
           </button>
         </div>
 
+        <div className={styles.narrationRow}>
+          <button
+            type="button"
+            className={`${styles.narration} ${narrationOn ? styles.narrationOn : ""}`}
+            aria-pressed={narrationOn}
+            onClick={toggleNarration}
+          >
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+              <path d="M2 6h3l4-3v10l-4-3H2z" fill="currentColor" />
+              {narrationOn ? (
+                <path
+                  d="M11 5.5c1 .8 1 4.2 0 5M12.8 3.8c2 1.8 2 6.6 0 8.4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                  strokeLinecap="round"
+                />
+              ) : (
+                <path
+                  d="M11 6l4 4M15 6l-4 4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                  strokeLinecap="round"
+                />
+              )}
+            </svg>
+            <span>{narrationOn ? "Narration on" : "Narration off"}</span>
+          </button>
+          <span className={styles.narrationHint} role="status">
+            {narrationNote ||
+              (narrationOn
+                ? "Speaks during Play. Pause or turn narration off to stop it."
+                : "")}
+          </span>
+        </div>
+
         <p className={styles.caption}>
           Fig. 3 — The Field Log. Move the needle to a year to read what her
           profile lists for it, or press Play to step through the years. Stacked rows show overlap only; their order
@@ -347,7 +458,8 @@ export default function FieldLog() {
         <p className={styles.readTitle}>
           {year === PRESENT_STOP ? "Still listed as “Present”: " : `In ${year}: `}
           <em>{summary(year)}</em>
-          {workCount > 1 ? ", running in parallel." : "."}
+          {/* "in parallel" only when roles truly overlap, month by month */}
+          {(year === PRESENT_STOP ? workCount : maxOverlap(year)) > 1 ? ", running in parallel." : "."}
         </p>
 
         {LANES.map((lane) => {
