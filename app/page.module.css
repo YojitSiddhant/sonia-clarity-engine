@@ -224,6 +224,12 @@
   max-width: 44rem;
 }
 
+/* ── ask ──────────────────────────────── */
+.ask {
+  padding: clamp(3rem, 8vw, 6rem) 0 clamp(4rem, 9vw, 7rem);
+  border-bottom: 1px solid var(--ink);
+}
+
 /* ── field log ────────────────────────── */
 .fieldlog {
   padding: clamp(3rem, 8vw, 6rem) 0 clamp(4rem, 9vw, 7rem);

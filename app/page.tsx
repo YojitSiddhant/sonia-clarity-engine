@@ -1,6 +1,7 @@
 import styles from "./page.module.css";
 import SignalPlate from "./engine/SignalPlate";
 import FieldLog from "./fieldlog/FieldLog";
+import AskEngine from "./ask/AskEngine";
 import { SIGNALS } from "./engine/signals";
 
 export default function Home() {
@@ -89,6 +90,22 @@ export default function Home() {
           </p>
         </div>
         <SignalPlate />
+      </section>
+
+      {/* ── Ask ─────────────────────────────────────── */}
+      <section className={styles.ask} aria-labelledby="ask">
+        <div className={styles.expHead}>
+          <p className={styles.label}>Ask the engine</p>
+          <h2 id="ask" className={styles.h2}>
+            Have a question? <em>Ask it of her own record.</em>
+          </h2>
+          <p className={styles.body}>
+            The Clarity Engine reads the same profile references as the plate
+            above and answers in a few sentences, showing exactly where each
+            answer comes from. If her profile doesn’t say, it will tell you.
+          </p>
+        </div>
+        <AskEngine />
       </section>
 
       {/* ── Field log ───────────────────────────────── */}

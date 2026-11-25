@@ -1,0 +1,215 @@
+"use client";
+
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import styles from "./ask.module.css";
+import type { Citation } from "./answer";
+
+const MAX = 300;
+
+// Each example maps to entries that exist in the curated data.
+const EXAMPLES = [
+  "How does Sonia connect marketing and operations?",
+  "What experience does she have building teams?",
+  "What does her timeline show around 2020?",
+  "What awards are listed in her profile?",
+];
+
+type View =
+  | { kind: "idle" }
+  | { kind: "loading"; question: string }
+  | { kind: "answer"; question: string; answer: string; citations: Citation[] }
+  | { kind: "unsupported"; question: string; answer: string }
+  | { kind: "notice"; question?: string; message: string };
+
+const EVIDENCE_LABEL: Record<Citation["evidence"], string> = {
+  direct: "Her words",
+  interpretive: "Editorial reading",
+  record: "Dated record",
+};
+
+export default function AskEngine() {
+  const [enabled, setEnabled] = useState<boolean | null>(null);
+  const [question, setQuestion] = useState("");
+  const [view, setView] = useState<View>({ kind: "idle" });
+  const inFlight = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    const ctl = new AbortController();
+    fetch("/api/ask", { signal: ctl.signal, cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => setEnabled(!!d?.enabled))
+      .catch(() => {
+        if (!ctl.signal.aborted) setEnabled(false);
+      });
+    return () => {
+      ctl.abort();
+      inFlight.current?.abort();
+    };
+  }, []);
+
+  const ask = async (raw: string) => {
+    const q = raw.replace(/\s+/g, " ").trim();
+    if (q.length < 3) {
+      setView({ kind: "notice", message: "Please type a question of at least three characters." });
+      return;
+    }
+    inFlight.current?.abort(); // one request at a time
+    const ctl = new AbortController();
+    inFlight.current = ctl;
+    setView({ kind: "loading", question: q });
+    try {
+      const res = await fetch("/api/ask", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ question: q }),
+        signal: ctl.signal,
+      });
+      const data = await res.json().catch(() => null);
+      if (ctl.signal.aborted) return;
+      if (data?.state === "answer") {
+        setView({ kind: "answer", question: q, answer: data.answer, citations: data.citations ?? [] });
+      } else if (data?.state === "unsupported") {
+        setView({ kind: "unsupported", question: q, answer: data.answer });
+      } else {
+        if (data?.state === "setup") setEnabled(false);
+        setView({
+          kind: "notice",
+          question: q,
+          message: data?.message ?? "The Clarity Engine couldn’t answer just now. Please try again shortly.",
+        });
+      }
+    } catch {
+      if (ctl.signal.aborted) return;
+      setView({ kind: "notice", question: q, message: "The Clarity Engine couldn’t answer just now. Please try again shortly." });
+    }
+  };
+
+  const onSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (view.kind !== "loading") ask(question);
+  };
+
+  const pick = (q: string) => {
+    setQuestion(q);
+    ask(q);
+  };
+
+  const disabled = enabled === false;
+  const loading = view.kind === "loading";
+
+  return (
+    <div className={styles.wrap}>
+      <div className={styles.inputCol}>
+        <form className={styles.form} onSubmit={onSubmit} aria-describedby="ask-note">
+          <label htmlFor="ask-q" className={styles.label}>
+            Your question
+          </label>
+          <div className={styles.row}>
+            <input
+              id="ask-q"
+              className={styles.input}
+              type="text"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              maxLength={MAX}
+              placeholder="e.g. How does she connect brand and people?"
+              autoComplete="off"
+              disabled={disabled}
+            />
+            <button type="submit" className={styles.submit} disabled={disabled || loading}>
+              {loading ? "Reading…" : "Ask"}
+            </button>
+          </div>
+          <p className={styles.count} aria-hidden="true">
+            {question.length}/{MAX}
+          </p>
+        </form>
+
+        <div className={styles.examples}>
+          <p className={styles.examplesLabel} id="ask-examples">
+            Or try one of these
+          </p>
+          <ul aria-labelledby="ask-examples">
+            {EXAMPLES.map((q) => (
+              <li key={q}>
+                <button type="button" className={styles.example} onClick={() => pick(q)} disabled={disabled || loading}>
+                  {q}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <p id="ask-note" className={styles.note}>
+          Answers are generated only from the profile references used on this
+          page, and may not cover everything. Nothing you type is stored.
+        </p>
+      </div>
+
+      <section className={styles.readout} aria-live="polite" aria-busy={loading} aria-label="Answer">
+        {disabled && (
+          <div>
+            <p className={styles.kicker}>Reading — not set up</p>
+            <p className={styles.title}>Ask the Clarity Engine isn’t switched on here yet.</p>
+            <p className={styles.small}>
+              It needs a server-side Gemini key on the deployment. Everything else on this page works
+              without it.
+            </p>
+          </div>
+        )}
+
+        {!disabled && view.kind === "idle" && (
+          <div>
+            <p className={styles.kicker}>Reading — waiting</p>
+            <p className={styles.title}>Ask about how she works. The answer will show where it came from.</p>
+          </div>
+        )}
+
+        {view.kind === "loading" && (
+          <div>
+            <p className={styles.kicker}>Reading — “{view.question}”</p>
+            <p className={styles.loading}>
+              <span className={styles.pulse} aria-hidden="true" /> Checking her profile references…
+            </p>
+          </div>
+        )}
+
+        {view.kind === "answer" && (
+          <div>
+            <p className={styles.kicker}>Reading — “{view.question}”</p>
+            <p className={styles.answer}>{view.answer}</p>
+            <p className={styles.sourcesLabel}>Sources from her profile</p>
+            <ol className={styles.sources}>
+              {view.citations.map((c) => (
+                <li key={c.id}>
+                  <span className={`${styles.tag} ${styles[`tag_${c.evidence}`]}`}>{EVIDENCE_LABEL[c.evidence]}</span>
+                  <span className={styles.srcText}>{c.evidence === "record" ? c.text : `“${c.text}”`}</span>
+                  {c.reading && <span className={styles.srcReading}>Our reading: {c.reading}</span>}
+                  <span className={styles.srcWhere}>
+                    {c.section}
+                    {c.where ? ` · ${c.where}` : ""}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+
+        {view.kind === "unsupported" && (
+          <div>
+            <p className={styles.kicker}>Reading — “{view.question}”</p>
+            <p className={styles.title}>Not in the references.</p>
+            <p className={styles.small}>{view.answer}</p>
+          </div>
+        )}
+
+        {view.kind === "notice" && !disabled && (
+          <div>
+            <p className={styles.kicker}>Reading — {view.question ? `“${view.question}”` : "check the question"}</p>
+            <p className={styles.small}>{view.message}</p>
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
