@@ -2,7 +2,7 @@
 
 .wrap {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.35fr);
   gap: clamp(1.5rem, 4vw, 4rem);
   align-items: start;
 }
@@ -182,10 +182,54 @@
 }
 
 .answer {
-  margin: 0 0 1.25rem;
+  margin: 0 0 1.4rem;
+  max-width: 62ch; /* comfortable line length on wide screens */
   font-family: var(--font-serif);
-  font-size: clamp(1.15rem, 2vw, 1.4rem);
+  font-size: clamp(1.1rem, 1.7vw, 1.3rem);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* 2–3 longer sentences: one paragraph each */
+.answerParas p {
+  margin: 0;
+}
+
+.answerParas p + p {
+  margin-top: 0.75em;
+}
+
+/* 4+ sentences (awards, study, volunteering…): an easy-to-scan list */
+.answerList {
+  list-style: none;
+  padding: 0;
+  font-size: clamp(1.02rem, 1.4vw, 1.12rem);
   line-height: 1.45;
+}
+
+.answerList li {
+  position: relative;
+  padding: 0.5rem 0 0.5rem 1.1rem;
+  border-top: 1px dashed var(--rule);
+}
+
+.answerList li:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.answerList li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 1.15em;
+  width: 0.45rem;
+  height: 1px;
+  background: var(--signal);
+}
+
+.answerList li:first-child::before {
+  top: 0.7em;
 }
 
 .loading {
@@ -244,14 +288,36 @@
 
 .sources {
   margin: 0;
-  padding-left: 1.2rem;
+  padding: 0;
+  list-style: none;
   display: grid;
-  gap: 0.8rem;
+  gap: 0.9rem;
+}
+
+/* many sources: two columns where there is room */
+.sourcesGrid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  gap: 0.9rem 1.5rem;
 }
 
 .sources li {
   display: grid;
-  gap: 0.15rem;
+  gap: 0.2rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  scroll-margin-top: 1.5rem; /* landing from a [n] marker */
+}
+
+.srcHead {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.srcNum {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--signal-text);
 }
 
 .tag {

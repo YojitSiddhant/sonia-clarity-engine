@@ -21,6 +21,32 @@ type View =
   | { kind: "unsupported"; question: string; answer: string }
   | { kind: "notice"; question?: string; message: string };
 
+/**
+ * Presentation only — the sentences and their citations are never changed.
+ * 4+ sentences read best as a list (e.g. awards); 2–3 longer sentences as
+ * separate paragraphs; anything short stays one compact paragraph.
+ */
+type Shape = "inline" | "paragraphs" | "list";
+function shapeOf(sentences: AnswerSentence[]): Shape {
+  if (sentences.length >= 4) return "list";
+  const chars = sentences.reduce((n, s) => n + s.text.length, 0);
+  return sentences.length > 1 && chars > 220 ? "paragraphs" : "inline";
+}
+
+function Marks({ cites }: { cites: number[] }) {
+  return (
+    <>
+      {cites.map((n) => (
+        <sup key={n} className={styles.cite}>
+          <a href={`#ask-src-${n}`} aria-label={`source ${n}`}>
+            [{n}]
+          </a>
+        </sup>
+      ))}
+    </>
+  );
+}
+
 const EVIDENCE_LABEL: Record<Citation["evidence"], string> = {
   direct: "Her words",
   interpretive: "Editorial reading",
@@ -177,26 +203,52 @@ export default function AskEngine() {
         {view.kind === "answer" && (
           <div>
             <p className={styles.kicker}>Reading — “{view.question}”</p>
-            {/* each sentence shows the numbers of the sources it relies on */}
-            <p className={styles.answer}>
-              {view.sentences.map((s, i) => (
-                <span key={i}>
-                  {s.text}
-                  {s.cites.map((n) => (
-                    <sup key={n} className={styles.cite}>
-                      <a href={`#ask-src-${n}`} aria-label={`source ${n}`}>
-                        [{n}]
-                      </a>
-                    </sup>
-                  ))}{" "}
-                </span>
-              ))}
-            </p>
+            {/* each sentence keeps the numbers of the sources it relies on */}
+            {(() => {
+              const shape = shapeOf(view.sentences);
+              if (shape === "list")
+                return (
+                  <ol className={`${styles.answer} ${styles.answerList}`}>
+                    {view.sentences.map((s, i) => (
+                      <li key={i}>
+                        {s.text}
+                        <Marks cites={s.cites} />
+                      </li>
+                    ))}
+                  </ol>
+                );
+              if (shape === "paragraphs")
+                return (
+                  <div className={`${styles.answer} ${styles.answerParas}`}>
+                    {view.sentences.map((s, i) => (
+                      <p key={i}>
+                        {s.text}
+                        <Marks cites={s.cites} />
+                      </p>
+                    ))}
+                  </div>
+                );
+              return (
+                <p className={styles.answer}>
+                  {view.sentences.map((s, i) => (
+                    <span key={i}>
+                      {s.text}
+                      <Marks cites={s.cites} />{" "}
+                    </span>
+                  ))}
+                </p>
+              );
+            })()}
             <p className={styles.sourcesLabel}>Sources from her profile</p>
-            <ol className={styles.sources}>
+            <ol className={`${styles.sources} ${view.citations.length >= 5 ? styles.sourcesGrid : ""}`}>
               {view.citations.map((c, i) => (
                 <li key={c.id} id={`ask-src-${i + 1}`}>
-                  <span className={`${styles.tag} ${styles[`tag_${c.evidence}`]}`}>{EVIDENCE_LABEL[c.evidence]}</span>
+                  <span className={styles.srcHead}>
+                    <span className={styles.srcNum} aria-hidden="true">
+                      [{i + 1}]
+                    </span>
+                    <span className={`${styles.tag} ${styles[`tag_${c.evidence}`]}`}>{EVIDENCE_LABEL[c.evidence]}</span>
+                  </span>
                   <span className={styles.srcText}>{c.evidence === "record" ? c.text : `“${c.text}”`}</span>
                   {c.reading && <span className={styles.srcReading}>Our reading: {c.reading}</span>}
                   <span className={styles.srcWhere}>
