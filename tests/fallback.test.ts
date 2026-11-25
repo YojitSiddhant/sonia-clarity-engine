@@ -20,6 +20,7 @@ describe("answerQuestion with a fallback provider", () => {
     const groq = groqSays(valid());
     const r = await answerQuestion(Q, async () => valid(), groq);
     expect(r.state).toBe("answer");
+    expect(r.state === "answer" && r.provider).toBe("gemini");
     expect(groq).not.toHaveBeenCalled();
   });
 
@@ -27,6 +28,7 @@ describe("answerQuestion with a fallback provider", () => {
     const groq = groqSays(valid());
     const r = await answerQuestion(Q, async () => ({ supported: true, sentences: [{ text: "x", sourceIds: ["pair:fake"] }] }), groq);
     expect(r.state).toBe("unsupported");
+    expect(r).not.toHaveProperty("provider");
     expect(groq).not.toHaveBeenCalled();
   });
 
@@ -42,6 +44,7 @@ describe("answerQuestion with a fallback provider", () => {
     };
     const r = await answerQuestion(Q, gemini, groq);
     expect(r.state).toBe("answer");
+    expect(r.state === "answer" && r.provider).toBe("groq-fallback");
     expect(prompts[1]).toEqual(prompts[0]); // same question, same selected sources
   });
 

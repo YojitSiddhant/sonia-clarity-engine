@@ -30,11 +30,17 @@ export type Citation = {
   reading?: string;
 };
 
+/**
+ * Which provider's reply passed validation and is being shown. Only these two
+ * fixed identifiers ever reach the browser.
+ */
+export type AnswerProvider = "gemini" | "groq-fallback";
+
 /** A sentence plus the 1-based numbers of the citations it relies on. */
 export type AnswerSentence = { text: string; cites: number[] };
 
 export type AskResult =
-  | { state: "answer"; sentences: AnswerSentence[]; citations: Citation[] }
+  | { state: "answer"; sentences: AnswerSentence[]; citations: Citation[]; provider: AnswerProvider }
   | { state: "unsupported"; answer: string };
 
 export const UNSUPPORTED =
@@ -171,14 +177,19 @@ export async function answerQuestion(
     // answer (or a "not covered") resting on the backup alone.
     const checked = validateReply(reply, docs, isList);
     if (checked.state !== "answer") throw new AnswerFailure(primaryError, "invalid");
-    return checked;
+    return { ...checked, provider: "groq-fallback" };
   }
 
-  return validateReply(reply, docs, isList);
+  const checked = validateReply(reply, docs, isList);
+  return checked.state === "answer" ? { ...checked, provider: "gemini" } : checked;
 }
 
 /** The grounding rules, applied identically to every provider's reply. */
-function validateReply(reply: ModelReply, docs: SourceDoc[], isList: boolean): AskResult {
+type Validated =
+  | { state: "answer"; sentences: AnswerSentence[]; citations: Citation[] }
+  | { state: "unsupported"; answer: string };
+
+function validateReply(reply: ModelReply, docs: SourceDoc[], isList: boolean): Validated {
   if (!reply || reply.supported !== true || !Array.isArray(reply.sentences)) return unsupported();
   const sentences = reply.sentences.slice(0, isList ? Math.min(docs.length, MAX_LIST_SENTENCES) : MAX_SENTENCES);
   if (!sentences.length) return unsupported();

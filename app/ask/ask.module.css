@@ -167,6 +167,29 @@
   overflow-wrap: anywhere;
 }
 
+/* which provider's validated answer is shown — small, quiet, after the question */
+.provider {
+  display: inline-block;
+  margin-left: 0.6rem;
+  padding: 0 0.4rem;
+  border: 1px solid var(--rule);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  vertical-align: 1px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 .title {
   margin: 0 0 0.75rem;
   font-family: var(--font-serif);

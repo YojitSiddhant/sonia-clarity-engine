@@ -62,23 +62,27 @@ describe("POST /api/ask with the Groq fallback", () => {
 
   const Q = "How does Sonia connect marketing and operations?";
 
-  it("Gemini succeeds: Groq is never called and nothing is logged", async () => {
+  it("Gemini succeeds: Groq is never called, nothing is logged, provider is gemini", async () => {
     const { POST } = await freshRoute();
     const body = await (await POST(post(Q))).json();
     expect(body.sentences[0].text).toBe("Primary sentence.");
+    expect(body.provider).toBe("gemini");
     expect(s.groqCalls).toBe(0);
     expect(logs).toEqual([]);
   });
 
-  it("Gemini fails, Groq answers: the normal answer, no provider-specific fields", async () => {
+  it("Gemini fails, Groq answers: the normal answer, labelled only by a safe provider id", async () => {
     s.geminiMode = "fail";
     const { POST } = await freshRoute();
     const res = await POST(post(Q));
     const body = await res.json();
     expect(res.status).toBe(200);
     expect(body.state).toBe("answer");
-    expect(Object.keys(body).sort()).toEqual(["citations", "sentences", "state"]);
-    expect(JSON.stringify(body)).not.toMatch(/groq|gemini/i);
+    expect(Object.keys(body).sort()).toEqual(["citations", "provider", "sentences", "state"]);
+    expect(body.provider).toBe("groq-fallback");
+    // nothing else about either provider: no error detail, status or model
+    const { provider: _p, ...rest } = body;
+    expect(JSON.stringify(rest)).not.toMatch(/groq|gemini|503|transient/i);
     expect(logs).toEqual(["[ask] provider failure category=transient status=503 attempts=2; answered by fallback=groq"]);
   });
 
@@ -136,5 +140,27 @@ describe("POST /api/ask with the Groq fallback", () => {
     for (let i = 0; i < 6; i++) statuses.push((await POST(post(Q, `198.51.100.${i}`))).status);
     expect(statuses).toEqual([200, 200, 200, 200, 200, 429]);
     expect(s.groqCalls).toBe(5);
+  });
+
+  it("Groq configured but not needed is never shown: Gemini's own 'not covered' has no provider", async () => {
+    const { POST } = await freshRoute();
+    const body = await (await POST(post("What is her favourite food?"))).json();
+    expect(body.state).toBe("unsupported");
+    expect(body).not.toHaveProperty("provider");
+    expect(s.groqCalls).toBe(0);
+  });
+
+  it("errors, setup, invalid and rate-limited responses carry no provider", async () => {
+    Object.assign(s, { geminiMode: "fail", groqMode: "fail" });
+    const { POST } = await freshRoute();
+    const failed = await (await POST(post(Q))).json();
+    expect(failed.state).toBe("error");
+    expect(failed).not.toHaveProperty("provider");
+    const invalid = await (await POST(post("  "))).json();
+    expect(invalid).not.toHaveProperty("provider");
+    let limited: Record<string, unknown> = {};
+    for (let i = 0; i < 6; i++) limited = await (await POST(post(Q, "192.0.2.7"))).json();
+    expect(limited.state).toBe("limited");
+    expect(limited).not.toHaveProperty("provider");
   });
 });
