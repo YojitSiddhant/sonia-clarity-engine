@@ -84,6 +84,11 @@
   z-index: 2;
 }
 
+/* while playing, the loop moves the needle every frame: no easing lag */
+.needlePlaying {
+  transition: none;
+}
+
 .needle::before {
   content: "";
   position: absolute;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./fieldlog.module.css";
 import {
   ENTRIES,
@@ -60,8 +60,15 @@ const isActive = (e: Entry, year: number) => {
 
 const yearLabel = (y: number) => (y === PRESENT_STOP ? "Present" : String(y));
 
-// One year every 1.6 s: slow enough to read the panel as it changes.
-const PLAY_STEP_MS = 1600;
+// Playback glides continuously at one year per 1.6 s, so the reading panel
+// changes at a calm, readable cadence while the needle never stops.
+const YEARS_PER_SECOND = 1 / 1.6;
+const PLAY_END = PRESENT_STOP + 0.5; // centre of the Present column
+const centre = (y: number) => y + 0.5;
+const yearAt = (t: number) => Math.min(PRESENT_STOP, Math.max(FIRST_YEAR, Math.floor(t)));
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const NOUN: Record<Lane, [string, string]> = {
   work: ["role", "roles"],
@@ -89,42 +96,97 @@ export default function FieldLog() {
   // "Replay" only after a playback has actually reached Present.
   const [finished, setFinished] = useState(false);
 
+  // Needle position in axis years (continuous). React renders it from
+  // `needleT` when stopped; while playing, the animation loop moves the DOM
+  // node directly so the page doesn't re-render every frame.
+  const [needleT, setNeedleT] = useState(centre(PRESENT_STOP));
+  const tRef = useRef(centre(PRESENT_STOP));
+  const drawnRef = useRef(centre(PRESENT_STOP));
+  const needleRef = useRef<HTMLSpanElement>(null);
+
+  // Put the needle at `t` in the DOM and in state, so a later render can't
+  // leave it where the animation loop last drew it.
+  const place = (t: number) => {
+    drawnRef.current = t;
+    if (needleRef.current) needleRef.current.style.left = pct(t);
+    setNeedleT(t);
+  };
+
+  // Freeze the needle where it is and sync the selected year to it.
+  const freeze = () => {
+    setPlaying(false);
+    place(drawnRef.current);
+    const y = yearAt(tRef.current);
+    setYear(y);
+    return y;
+  };
+
   // Manual navigation always wins: it pauses playback first.
   const set = (y: number) => {
+    const target = Math.min(PRESENT_STOP, Math.max(FIRST_YEAR, y));
     if (playing) {
       setPlaying(false);
-      setStatus(`Playback paused at ${yearLabel(y)}.`);
+      setStatus(`Playback paused at ${yearLabel(target)}.`);
     }
+    tRef.current = centre(target);
+    place(centre(target));
     setFinished(false);
-    setYear(Math.min(PRESENT_STOP, Math.max(FIRST_YEAR, y)));
+    setYear(target);
   };
 
   const togglePlay = () => {
     if (playing) {
-      setPlaying(false);
-      setStatus(`Playback paused at ${yearLabel(year)}.`);
+      const y = freeze();
+      setStatus(`Playback paused at ${yearLabel(y)}.`);
       return;
     }
-    const from = year === PRESENT_STOP ? FIRST_YEAR : year; // replay from the start
+    // From Present (or after finishing) replay from the start of 2002;
+    // otherwise resume from wherever the needle is.
+    if (tRef.current >= PLAY_END - 1e-6) tRef.current = FIRST_YEAR;
+    const from = yearAt(tRef.current);
     setYear(from);
     setFinished(false);
     setPlaying(true);
     setStatus(`Playback started at ${yearLabel(from)}.`);
   };
 
+  // One animation loop at most: it exists only while `playing` is true and
+  // is cancelled on pause, manual navigation, finish or unmount.
   useEffect(() => {
     if (!playing) return;
-    const id = setTimeout(() => {
-      const next = year + 1;
-      setYear(next);
-      if (next >= PRESENT_STOP) {
+    const reduce = prefersReducedMotion();
+    let raf = 0;
+    let last = performance.now();
+
+    const draw = (t: number) => {
+      // Reduced motion: no glide; the needle sits at each year's centre.
+      const shown = reduce ? Math.min(centre(yearAt(t)), PLAY_END) : t;
+      drawnRef.current = shown;
+      if (needleRef.current) needleRef.current.style.left = pct(shown);
+    };
+
+    const tick = (now: number) => {
+      const dt = Math.min(0.1, (now - last) / 1000); // ignore long tab pauses
+      last = now;
+      const t = Math.min(PLAY_END, tRef.current + dt * YEARS_PER_SECOND);
+      tRef.current = t;
+      draw(t);
+      setYear(yearAt(t)); // no re-render unless the year actually changed
+      if (t >= PLAY_END) {
+        setNeedleT(PLAY_END);
         setPlaying(false);
         setFinished(true);
         setStatus(`Playback finished at Present. ${summary(PRESENT_STOP)}.`);
+        return;
       }
-    }, PLAY_STEP_MS);
-    return () => clearTimeout(id);
-  }, [playing, year]);
+      raf = requestAnimationFrame(tick);
+    };
+
+    draw(tRef.current);
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [playing]);
+
   const active = ENTRIES.filter((e) => isActive(e, year));
   const workCount = active.filter((e) => e.lane === "work").length;
 
@@ -145,7 +207,11 @@ export default function FieldLog() {
               />
             ))}
             <span className={styles.presentZone} style={{ left: pct(PRESENT_STOP) }} />
-            <span className={styles.needle} style={{ left: pct(year + 0.5) }} />
+            <span
+              ref={needleRef}
+              className={`${styles.needle} ${playing ? styles.needlePlaying : ""}`}
+              style={{ left: pct(needleT) }}
+            />
           </div>
 
           {LANES.map((lane) => {
