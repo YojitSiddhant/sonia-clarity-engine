@@ -5,6 +5,7 @@ import styles from "./plate.module.css";
 import {
   SIGNALS,
   CONNECTION_BY_KEY,
+  CORE_NOTES,
   EVIDENCE_LABEL,
   pairKey,
   type Connection,
@@ -27,9 +28,7 @@ const lookup = (a: SignalId, b: SignalId): Connection =>
   CONNECTION_BY_KEY.get(pairKey(a, b)) ?? {
     pair: [a, b],
     evidence: "open",
-    title: "Not yet confirmed from her profile",
-    reading:
-      "No line in the profile material fairly relates these two, so this line is left open rather than guessed.",
+    title: "Two notes from her profile",
     source: null,
   };
 
@@ -49,9 +48,12 @@ function Quote({ source }: { source: Source }) {
   return (
     <>
       <blockquote className={styles.quote}>
-        {source.excerpt && <span className={styles.excerptTag}>Excerpt</span>}
-        “{source.quote}
-        {source.excerpt ? "…" : ""}”
+        {(source.excerpt || source.excerptStart) && (
+          <span className={styles.excerptTag}>Excerpt</span>
+        )}
+        “{source.excerptStart ? "…" : ""}
+        {/* an excerpt ends in "…", so drop its own closing full stop */}
+        {source.excerpt ? `${source.quote.replace(/\.$/, "")}…` : source.quote}”
       </blockquote>
       <p className={styles.where}>
         {source.section}
@@ -64,13 +66,26 @@ function Quote({ source }: { source: Source }) {
 export default function SignalPlate() {
   // Up to two selected signals. One = read a signal; two = read the line.
   const [picked, setPicked] = useState<SignalId[]>([]);
+  // The clarity core shows her method; it is not part of any pair.
+  const [coreOpen, setCoreOpen] = useState(false);
 
   const toggle = (id: SignalId) => {
+    setCoreOpen(false);
     setPicked((cur) => {
       if (cur.includes(id)) return cur.filter((p) => p !== id);
       if (cur.length < 2) return [...cur, id];
       return [cur[1], id]; // a third pick replaces the oldest one
     });
+  };
+
+  const openCore = () => {
+    setPicked([]);
+    setCoreOpen((v) => !v);
+  };
+
+  const reset = () => {
+    setPicked([]);
+    setCoreOpen(false);
   };
 
   const [a, b] = picked;
@@ -102,8 +117,9 @@ export default function SignalPlate() {
               const q = byId[t].pos;
               const key = pairKey(s, t);
               const touches = picked.includes(s) || picked.includes(t);
+              const evidence = lookup(s, t).evidence;
               const state =
-                key === activeKey
+                key === activeKey && evidence !== "open"
                   ? styles.edgeActive
                   : touches && picked.length === 1
                     ? styles.edgeHint
@@ -115,16 +131,22 @@ export default function SignalPlate() {
                   y1={p.y}
                   x2={q.x}
                   y2={q.y}
-                  className={`${styles.edge} ${EDGE_CLASS[lookup(s, t).evidence]} ${state}`}
+                  className={`${styles.edge} ${EDGE_CLASS[evidence]} ${state}`}
                   vectorEffect="non-scaling-stroke"
                 />
               );
             })}
           </svg>
 
-          <div className={styles.core} aria-hidden="true">
+          <button
+            type="button"
+            className={`${styles.core} ${coreOpen ? styles.coreOn : ""}`}
+            aria-pressed={coreOpen}
+            aria-label="Clarity: read Sonia’s method"
+            onClick={openCore}
+          >
             <span>clarity</span>
-          </div>
+          </button>
 
           {SIGNALS.map((s) => {
             const on = picked.includes(s.id);
@@ -139,7 +161,9 @@ export default function SignalPlate() {
               >
                 <span className={styles.nodeIndex}>{s.index}</span>
                 <span className={styles.nodeLabel}>{s.label}</span>
-                <span className={styles.nodeAffects}>→ {s.affects}</span>
+                <span className={styles.nodeAffects}>
+                  {s.affects ? `→ ${s.affects}` : s.descriptor}
+                </span>
               </button>
             );
           })}
@@ -149,7 +173,7 @@ export default function SignalPlate() {
           <p className={styles.caption}>
             Fig. 2 — The engine. Select one signal to read it; select a second
             to read the line between them. A third selection replaces the
-            oldest.
+            oldest. Select clarity, at the centre, to read her method.
           </p>
           <ul className={styles.legend} aria-label="How strong each line is">
             {(
@@ -158,7 +182,7 @@ export default function SignalPlate() {
                 ["interpretive", "her words cover both; the link is our reading"],
                 [
                   "open",
-                  `not supported by her profile; left unconfirmed${
+                  `her profile doesn’t connect them; shown as two separate notes${
                     ALL_PAIRS.some(([s, t]) => lookup(s, t).evidence === "open")
                       ? ""
                       : " (none at present)"
@@ -180,15 +204,39 @@ export default function SignalPlate() {
       </div>
 
       <aside className={styles.readout} aria-live="polite">
-        {picked.length === 0 && (
+        {coreOpen && (
+          <div>
+            <p className={styles.kicker}>Core — clarity</p>
+            <p className={styles.readTitle}>
+              The method at the centre: <em>find the root, keep it simple.</em>
+            </p>
+            {CORE_NOTES.map((n) => (
+              <div key={n.quote}>
+                <blockquote className={styles.quote}>
+                  “{n.quote}”
+                  {n.gloss && (
+                    <span className={styles.gloss}>“{n.gloss}”</span>
+                  )}
+                </blockquote>
+                <p className={styles.where}>{n.source}</p>
+              </div>
+            ))}
+            <p className={styles.note}>
+              This is how she works, not one more signal, so it doesn’t pair.
+            </p>
+          </div>
+        )}
+
+        {picked.length === 0 && !coreOpen && (
           <div className={styles.empty}>
             <p className={styles.kicker}>Reading — idle</p>
             <p className={styles.readTitle}>
               Nothing selected. Start anywhere: every signal can be paired with
-              the other three.
+              any other.
             </p>
             <p className={styles.note}>
-              Six lines, four signals, one thing at the crossing.
+              {SIGNALS.length} signals, {ALL_PAIRS.length} lines, one thing at
+              the crossing.
             </p>
           </div>
         )}
@@ -199,7 +247,15 @@ export default function SignalPlate() {
               Reading — {byId[a].index} / {byId[a].label}
             </p>
             <p className={styles.readTitle}>
-              {byId[a].label} {byId[a].verb} <em>{byId[a].affects}</em>.
+              {byId[a].affects ? (
+                <>
+                  {byId[a].label} {byId[a].verb} <em>{byId[a].affects}</em>.
+                </>
+              ) : (
+                <>
+                  {byId[a].label}, <em>{byId[a].descriptor?.toLowerCase()}</em>.
+                </>
+              )}
             </p>
             <Quote source={byId[a].source} />
             <p className={styles.note}>
@@ -220,21 +276,41 @@ export default function SignalPlate() {
             <p className={styles.readTitle}>{connection.title}</p>
             {connection.reading && (
               <p className={styles.reading}>
-                <span className={styles.readingTag}>
-                  {connection.evidence === "open" ? "Unconfirmed" : "Editorial reading"}
-                </span>
+                <span className={styles.readingTag}>Editorial reading</span>
                 {connection.reading}
               </p>
             )}
             {connection.source && <Quote source={connection.source} />}
+
+            {/* Open pair: each signal's own verified example, side by side. */}
+            {connection.evidence === "open" && (
+              <>
+                {[a, b].map((id) => (
+                  <section
+                    key={id}
+                    className={styles.sideNote}
+                    aria-label={`${byId[id].label}: a note from her profile`}
+                  >
+                    <p className={styles.sideLabel}>
+                      {byId[id].index} / {byId[id].label}
+                    </p>
+                    <Quote source={byId[id].source} />
+                  </section>
+                ))}
+                <p className={styles.sourceNote}>
+                  Her profile presents these two examples separately; it
+                  doesn’t state a connection between them.
+                </p>
+              </>
+            )}
           </div>
         )}
 
         <button
           type="button"
           className={styles.reset}
-          onClick={() => setPicked([])}
-          disabled={picked.length === 0}
+          onClick={reset}
+          disabled={picked.length === 0 && !coreOpen}
         >
           Clear the plate
         </button>

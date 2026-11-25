@@ -57,7 +57,7 @@ export default function Home() {
             Fig. 1 — Four readings, as she states them
           </figcaption>
           <ol>
-            {SIGNALS.map((s) => (
+            {SIGNALS.filter((s) => s.affects).map((s) => (
               <li key={s.id}>
                 <span className={styles.ledgerIdx}>{s.index}</span>
                 <span className={styles.ledgerFrom}>{s.label.toLowerCase()}</span>
