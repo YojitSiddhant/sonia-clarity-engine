@@ -103,9 +103,6 @@ export default function SignalPlate() {
   return (
     <div className={styles.wrap}>
       <div className={styles.figureCol}>
-        <p className={`${styles.note} ${styles.plateIntro}`}>
-          Four areas come from my About section. Demand Generation and Market Insight come from my roles.
-        </p>
         <figure
           className={styles.plate}
           aria-label="Diagram: six business areas, connected through clarity at the centre"
