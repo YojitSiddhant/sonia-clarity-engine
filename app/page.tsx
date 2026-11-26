@@ -62,10 +62,6 @@ export default function Home() {
               </li>
             ))}
           </ol>
-          <p className={styles.ledgerNote}>
-            “how people affect <u>everything</u>” — the one connection with no
-            limit.
-          </p>
         </figure>
       </section>
 
