@@ -50,7 +50,7 @@ export default function Home() {
 
         <figure className={styles.ledger} aria-label="Four business areas and what each affects">
           <figcaption className={styles.figcap}>
-            Four connections, in my own words
+            This interactive profile offers a closer look at how I think, work and connect different aspects of business.
           </figcaption>
           <ol>
             {SIGNALS.filter((s) => s.affects).map((s, i) => (
