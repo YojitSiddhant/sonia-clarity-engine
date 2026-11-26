@@ -10,7 +10,7 @@ export default function Home() {
       <header className={styles.masthead}>
         <span>The Clarity Engine</span>
         <span className={styles.mastMid}>A closer look at my experience, thinking and approach to business</span>
-        <span>Soniaa · Marketing &amp; Operations Leader</span>
+        <span>Soniaa · Interactive Professional Profile</span>
       </header>
 
       {/* ── Observation ─────────────────────────────── */}
