@@ -426,7 +426,7 @@ export default function FieldLog() {
         </div>
 
         <p className={styles.caption}>
-          Fig. 3 — Career timeline: choose a year or press Play. Stacked rows
+          Career timeline: choose a year or press Play. Stacked rows
           show roles that overlapped in time, not a ranking or order of
           importance.
         </p>

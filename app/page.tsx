@@ -50,7 +50,7 @@ export default function Home() {
 
         <figure className={styles.ledger} aria-label="Four business areas and what each affects">
           <figcaption className={styles.figcap}>
-            Fig. 1 — Four connections, in my own words
+            Four connections, in my own words
           </figcaption>
           <ol>
             {SIGNALS.filter((s) => s.affects).map((s, i) => (

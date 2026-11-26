@@ -199,7 +199,7 @@ export default function SignalPlate() {
 
         <div className={styles.key}>
           <p className={styles.caption}>
-            Fig. 2 — Select one area, then another to explore their
+            Select one area, then another to explore their
             connection. Select the centre to read my method.
           </p>
           <ul className={styles.legend} aria-label="How strongly each connection is supported">
