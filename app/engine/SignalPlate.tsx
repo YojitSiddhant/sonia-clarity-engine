@@ -218,6 +218,13 @@ export default function SignalPlate() {
               </li>
             ))}
           </ul>
+          <p className={styles.caption}>
+            This distinction ensures that the insights remain transparent and
+            grounded in my professional record.
+          </p>
+          <p className={styles.caption}>
+            <em>Six business dimensions. Fifteen possible connections. One integrated perspective.</em>
+          </p>
         </div>
       </div>
 
