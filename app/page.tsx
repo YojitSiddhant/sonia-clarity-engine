@@ -53,9 +53,9 @@ export default function Home() {
             Fig. 1 — Four connections, in my own words
           </figcaption>
           <ol>
-            {SIGNALS.filter((s) => s.affects).map((s) => (
+            {SIGNALS.filter((s) => s.affects).map((s, i) => (
               <li key={s.id}>
-                <span className={styles.ledgerIdx}>{s.index}</span>
+                <span className={styles.ledgerIdx}>{i + 1}</span>
                 <span className={styles.ledgerFrom}>{s.label.toLowerCase()}</span>
                 <span className={styles.ledgerArrow} aria-hidden="true" />
                 <span className={styles.ledgerTo}>{s.affects}</span>
