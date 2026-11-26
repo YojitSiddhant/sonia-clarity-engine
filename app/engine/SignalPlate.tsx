@@ -258,9 +258,6 @@ export default function SignalPlate() {
         {picked.length === 0 && !coreOpen && (
           <div className={styles.empty}>
             <p className={styles.kicker}>Your selection</p>
-            <p className={styles.readTitle}>
-              Select any two areas to see how they connect. Start anywhere.
-            </p>
           </div>
         )}
 
