@@ -107,9 +107,12 @@ export default function Home() {
           </h2>
           <p className={styles.body}>
             My journey combines leadership roles, consulting, education, awards
-            and volunteering, and several have run at the same time. Move
-            through the years to see the roles and commitments listed for each
-            period, with dates exactly as they appear in my profile.
+            and volunteering, and several have run at the same time.
+          </p>
+          <h3 className={styles.h3}>Explore the timeline</h3>
+          <p className={styles.body}>
+            Move through the years to see the roles and commitments listed for
+            each period, with dates exactly as they appear in my profile.
           </p>
         </div>
         <FieldLog />
