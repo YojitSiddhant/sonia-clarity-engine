@@ -56,9 +56,9 @@ export default function Home() {
             {SIGNALS.filter((s) => s.affects).map((s, i) => (
               <li key={s.id}>
                 <span className={styles.ledgerIdx}>{i + 1}</span>
-                <span className={styles.ledgerFrom}>{s.label.toLowerCase()}</span>
+                <span className={styles.ledgerFrom}>{s.id === "messaging" ? "marketing" : s.label.toLowerCase()}</span>
                 <span className={styles.ledgerArrow} aria-hidden="true" />
-                <span className={styles.ledgerTo}>{s.affects}</span>
+                <span className={styles.ledgerTo}>{s.id === "people" ? "performance" : s.affects}</span>
               </li>
             ))}
           </ol>
