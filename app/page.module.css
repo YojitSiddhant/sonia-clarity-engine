@@ -64,7 +64,7 @@
 /* ── hero ─────────────────────────────── */
 .hero {
   position: relative;
-  padding: clamp(3rem, 10vw, 8rem) 0 clamp(3rem, 8vw, 6rem);
+  padding: clamp(3rem, 10vw, 8rem) 0 clamp(1.75rem, 4vw, 3rem);
   border-bottom: 1px solid var(--ink);
 }
 
@@ -115,7 +115,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
   gap: clamp(2rem, 5vw, 5rem);
-  padding: clamp(3rem, 8vw, 6rem) 0;
+  padding: clamp(1.75rem, 4vw, 3rem) 0;
   border-bottom: 1px solid var(--ink);
 }
 
@@ -198,7 +198,7 @@
 
 /* ── experiment ───────────────────────── */
 .experiment {
-  padding: clamp(3rem, 8vw, 6rem) 0 clamp(4rem, 9vw, 7rem);
+  padding: clamp(1.75rem, 4vw, 3rem) 0 clamp(2rem, 4.5vw, 3.5rem);
   border-bottom: 1px solid var(--ink);
 }
 
@@ -209,19 +209,19 @@
 
 /* ── ask ──────────────────────────────── */
 .ask {
-  padding: clamp(3rem, 8vw, 6rem) 0 clamp(4rem, 9vw, 7rem);
+  padding: clamp(1.75rem, 4vw, 3rem) 0 clamp(2rem, 4.5vw, 3.5rem);
   border-bottom: 1px solid var(--ink);
 }
 
 /* ── field log ────────────────────────── */
 .fieldlog {
-  padding: clamp(3rem, 8vw, 6rem) 0 clamp(4rem, 9vw, 7rem);
+  padding: clamp(1.75rem, 4vw, 3rem) 0 clamp(2rem, 4.5vw, 3.5rem);
   border-bottom: 1px solid var(--ink);
 }
 
 /* ── result ───────────────────────────── */
 .result {
-  padding: clamp(3rem, 8vw, 6rem) 0;
+  padding: clamp(1.75rem, 4vw, 3rem) 0;
 }
 
 .resultLine {
