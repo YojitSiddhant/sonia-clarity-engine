@@ -79,7 +79,8 @@ export default function Home() {
             Select any two business areas to see how they relate and how my
             experience brings them together. Each line shows how clearly my
             profile supports the connection: solid for direct, dashed for
-            interpretive, dotted for independent.
+            interpretive, dotted for independent. Six business areas. Fifteen
+            possible connections. One integrated perspective.
           </p>
         </div>
         <SignalPlate />

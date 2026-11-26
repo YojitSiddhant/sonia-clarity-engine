@@ -261,10 +261,6 @@ export default function SignalPlate() {
             <p className={styles.readTitle}>
               Select any two areas to see how they connect. Start anywhere.
             </p>
-            <p className={styles.note}>
-              Six business areas. Fifteen possible connections. One integrated
-              perspective.
-            </p>
           </div>
         )}
 
