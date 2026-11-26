@@ -201,10 +201,7 @@ export default function AskEngine() {
         )}
 
         {!disabled && view.kind === "idle" && (
-          <div>
-            <p className={styles.kicker}>Your answer</p>
-            <p className={styles.title}>Ask about how I work. Each answer shows where it came from.</p>
-          </div>
+          <div aria-hidden="true" />
         )}
 
         {view.kind === "loading" && (
