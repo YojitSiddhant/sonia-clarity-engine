@@ -199,19 +199,13 @@ export default function SignalPlate() {
             Select one area, then another to explore their
             connection. Select the centre to read my method.
           </p>
-          <ul className={styles.legend} aria-label="How strongly each connection is supported">
+          <p className={styles.caption}>The connections are presented at three levels:</p>
+          <ul className={styles.legend} aria-label="The connections are presented at three levels">
             {(
               [
-                ["direct", "my own words connect both areas"],
-                ["interpretive", "drawn from the wider context of my experience; the link is an editorial reading"],
-                [
-                  "open",
-                  `both areas appear in my profile but aren’t directly connected; shown as two separate notes${
-                    ALL_PAIRS.some(([s, t]) => lookup(s, t).evidence === "open")
-                      ? ""
-                      : " (none at present)"
-                  }`,
-                ],
+                ["direct", "Explicitly supported by my professional experience and statements."],
+                ["interpretive", "A connection drawn from the broader context of my experience."],
+                ["open", "Two areas that appear in my profile but are not directly connected."],
               ] as [Evidence, string][]
             ).map(([kind, text]) => (
               <li key={kind}>
@@ -219,7 +213,7 @@ export default function SignalPlate() {
                   <line x1="0" y1="3" x2="40" y2="3" className={`${styles.edge} ${EDGE_CLASS[kind]}`} />
                 </svg>
                 <span>
-                  <b>{EVIDENCE_LABEL[kind]}</b> {text}
+                  <b>{EVIDENCE_LABEL[kind]}:</b> {text}
                 </span>
               </li>
             ))}
