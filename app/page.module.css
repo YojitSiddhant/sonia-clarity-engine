@@ -131,10 +131,11 @@
 }
 
 .figcap {
-  font-family: var(--font-text);
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: var(--ink-soft);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1.05rem, 1.8vw, 1.3rem);
+  line-height: 1.35;
+  color: var(--ink);
   border-bottom: 1px solid var(--ink);
   padding-bottom: 0.5rem;
 }
